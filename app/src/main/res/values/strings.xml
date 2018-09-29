@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">popularmovies</string>
+    <string name="sort_most_popular">Popular Movies</string>
+    <string name="movie_popular_image">Popular Image</string>
+    <string name="movie_release_date">release_date</string>
+    <string name="movie_poster_image">moviePosterImage</string>
+    <string name="sort_highest_rating">Highest Rating</string>
+</resources>
