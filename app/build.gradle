@@ -11,9 +11,9 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
-        resValue('string', 'TMDB_API_KEY', 'PUT_YOUR_API_KEY_HERE')
+        resValue('string', 'TMDB_API_KEY', 'c06c6a52b86480ade117039b803682c3')
         resValue('string', 'TMDB_BASE_API_URL', 'https://api.themoviedb.org/3/')
-        resValue('string', 'TMDB_BASE_IMG_URL', 'https://image.tmdb.org/t/p/w400')
+        resValue('string', 'TMDB_BASE_IMG_URL', 'https://image.tmdb.org/t/p/w500')
     }
     buildTypes {
         release {
