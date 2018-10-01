@@ -60,6 +60,9 @@ public class MovieGridLayoutAdapter extends RecyclerView.Adapter<MovieGridLayout
         MovieViewHolder(View itemView) {
             super(itemView);
             mContext = itemView.getContext();
+            movieTitle = itemView.findViewById(R.id.tv_movie_title);
+            releaseDate = itemView.findViewById(R.id.tv_movie_release_date);
+            coverImage = itemView.findViewById(R.id.iv_movie_poster_image);
             itemView.setOnClickListener(this);
         }
 

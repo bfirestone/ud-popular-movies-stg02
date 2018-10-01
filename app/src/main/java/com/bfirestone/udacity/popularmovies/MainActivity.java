@@ -1,8 +1,11 @@
 package com.bfirestone.udacity.popularmovies;
 
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,9 +27,9 @@ import retrofit2.converter.moshi.MoshiConverterFactory;
 public class MainActivity extends AppCompatActivity {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
-    private static Retrofit retrofit;
+    public RecyclerView mMovieList;
     private static String apiKey;
-    private int numPageToFetch = 1;
+    private static final MovieSortType defaultSort = MovieSortType.MOST_POPULAR;
     public List<MovieDetails> movieDetails;
 
     @Override
@@ -34,69 +37,119 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        setTitle(R.string.sort_most_popular);
         apiKey = getResources().getString(R.string.TMDB_API_KEY);
-        getPopularMovies();
+
+        getMovieListBySort(defaultSort);
     }
 
-    private void getPopularMovies() {
+//    private void getPopularMovies() {
+//
+//        mMovieList = findViewById(R.id.rv_main);
+//
+//        NetworkConnectionDetector detector = new NetworkConnectionDetector();
+//
+//        if (detector.isNetworkAvailable(this)) {
+//            retrofit = getRetrofitInstance();
+//
+//            MovieDatabaseService movieService = retrofit.create(MovieDatabaseService.class);
+//
+//            Call<MovieResponse> call = movieService.getPopularMovies(apiKey, numPageToFetch);
+//
+//            Log.i(LOG_TAG, "[popular_movies] movie db api" +
+//                    movieService.getPopularMovies(apiKey, numPageToFetch)
+//                            .request().url().toString());
+//
+//            call.enqueue(new Callback<MovieResponse>() {
+//                @Override
+//                public void onResponse(@NonNull Call<MovieResponse> call,
+//                                       @NonNull Response<MovieResponse> response) {
+//
+//                    if (response.isSuccessful() && response.body() != null) {
+//                        movieDetails = response.body().getResults();
+//                        generateMovieList(movieDetails);
+//                        Log.d(LOG_TAG, "[popular_movies] num fetched=" + movieDetails.size());
+//                    }
+//                }
+//
+//                @Override
+//                public void onFailure(@NonNull Call<MovieResponse> call, @NonNull Throwable t) {
+//                    Toast.makeText(
+//                            MainActivity.this, "Error Fetching MovieDetails List",
+//                            Toast.LENGTH_SHORT).show();
+//                }
+//            });
+//        } else {
+//            Log.i(LOG_TAG, "[network] not available");
+//        }
+//    }
+//
+//    private void getTopRatedMovies() {
+//        NetworkConnectionDetector detector = new NetworkConnectionDetector();
+//
+//        if (detector.isNetworkAvailable(this)) {
+//            retrofit = getRetrofitInstance();
+//
+//            MovieDatabaseService movieService = retrofit.create(MovieDatabaseService.class);
+//
+//            Call<MovieResponse> call = movieService.getTopRatedMovies(apiKey, numPageToFetch);
+//            Log.i(LOG_TAG, "[top_rated_movies] movie db api" +
+//                    movieService.getTopRatedMovies(apiKey, numPageToFetch)
+//                    .request().url().toString());
+//
+//            call.enqueue(new Callback<MovieResponse>() {
+//                @Override
+//                public void onResponse(@NonNull Call<MovieResponse> call,
+//                                       @NonNull Response<MovieResponse> response) {
+//
+//                    if (response.isSuccessful() && response.body() != null) {
+//                        movieDetails = response.body().getResults();
+//                        generateMovieList(movieDetails);
+//                        Log.d(LOG_TAG, "[top_rated_movies] num fetched=" + movieDetails.size());
+//                    }
+//                }
+//
+//                @Override
+//                public void onFailure(@NonNull Call<MovieResponse> call,
+//                                      @NonNull Throwable t) {
+//
+//                    Toast.makeText(
+//                            MainActivity.this, "Error Fetching MovieDetails List",
+//                            Toast.LENGTH_SHORT).show();
+//                }
+//            });
+//        } else {
+//            Log.i(LOG_TAG, "[network] not available");
+//        }
+//    }
+
+    private void getMovieListBySort(MovieSortType movieSortType) {
+        mMovieList = findViewById(R.id.rv_main);
 
         NetworkConnectionDetector detector = new NetworkConnectionDetector();
 
         if (detector.isNetworkAvailable(this)) {
-            retrofit = getRetrofitInstance();
+            int numPageToFetch = 1;
+
+            Retrofit retrofit = new retrofit2.Retrofit.Builder()
+                    .baseUrl(getResources().getString(R.string.TMDB_BASE_API_URL))
+                    .addConverterFactory(MoshiConverterFactory.create())
+                    .build();
 
             MovieDatabaseService movieService = retrofit.create(MovieDatabaseService.class);
 
-            Call<MovieResponse> call = movieService.getPopularMovies(apiKey, numPageToFetch);
+            Call<MovieResponse> call;
 
-            Log.i(LOG_TAG, "[popular_movies] movie db api" +
-                    movieService.getPopularMovies(apiKey, numPageToFetch)
-                    .request().url().toString());
+            if (movieSortType == MovieSortType.HIGHEST_RATING) {
+                setTitle(R.string.sort_highest_rating);
+                call = movieService.getTopRatedMovies(apiKey, numPageToFetch);
+            } else {
+                setTitle(R.string.sort_most_popular);
+                call = movieService.getPopularMovies(apiKey, numPageToFetch);
+            }
 
-            call.enqueue(new Callback<MovieResponse>() {
-                @Override
-                public void onResponse(@NonNull Call<MovieResponse> call,
-                                       @NonNull Response<MovieResponse> response) {
-
-                    if (response.isSuccessful() && response.body() != null) {
-                        movieDetails = response.body().getResults();
-                        generateMovieList(movieDetails);
-                        Log.d(LOG_TAG, "[popular_movies] num fetched=" + movieDetails.size());
-                    }
-                }
-
-                @Override
-                public void onFailure(@NonNull Call<MovieResponse> call, @NonNull Throwable t) {
-                    Toast.makeText(
-                            MainActivity.this, "Error Fetching MovieDetails List",
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
-        } else {
-            Log.i(LOG_TAG, "[network] not available");
-        }
-    }
-
-    private Retrofit getRetrofitInstance() {
-        return new retrofit2.Retrofit.Builder()
-                .baseUrl(getResources().getString(R.string.TMDB_BASE_API_URL))
-                .addConverterFactory(MoshiConverterFactory.create())
-                .build();
-    }
-
-    private void getTopRatedMovies() {
-        NetworkConnectionDetector detector = new NetworkConnectionDetector();
-
-        if (detector.isNetworkAvailable(this)) {
-            retrofit = getRetrofitInstance();
-
-            MovieDatabaseService movieService = retrofit.create(MovieDatabaseService.class);
-
-            Call<MovieResponse> call = movieService.getTopRatedMovies(apiKey, numPageToFetch);
             Log.i(LOG_TAG, "[top_rated_movies] movie db api" +
                     movieService.getTopRatedMovies(apiKey, numPageToFetch)
-                    .request().url().toString());
+                            .request().url().toString());
 
             call.enqueue(new Callback<MovieResponse>() {
                 @Override
@@ -105,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
 
                     if (response.isSuccessful() && response.body() != null) {
                         movieDetails = response.body().getResults();
+                        Log.i(LOG_TAG, "[movie_details] " + movieDetails);
                         generateMovieList(movieDetails);
                         Log.d(LOG_TAG, "[top_rated_movies] num fetched=" + movieDetails.size());
                     }
@@ -124,9 +178,24 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // todo: this shoudl take an arg for sorting by popularity or rating
     private void generateMovieList(final List<MovieDetails> results) {
-        // stub - generate a list of movies for a grid view
+        MovieGridLayoutAdapter.MovieItemClickListener movieItemClickListener = new MovieGridLayoutAdapter.MovieItemClickListener() {
+            @Override
+            public void onMovieItemClick(int movieItemIndex) {
+                Intent intent = new Intent(MainActivity.this, DetailsActivity.class);
+                MovieDetails movie = results.get(movieItemIndex);
+                Log.i(LOG_TAG, "[movie] " + movie);
+                intent.putExtra("Movie", results.get(movieItemIndex));
+                startActivity(intent);
+            }
+        };
+
+        MovieGridLayoutAdapter gridLayoutAdapter = new MovieGridLayoutAdapter(this,
+                results, movieItemClickListener);
+
+        mMovieList.setHasFixedSize(true);
+        mMovieList.setLayoutManager(new GridLayoutManager(this, 2));
+        mMovieList.setAdapter(gridLayoutAdapter);
     }
 
     @Override
@@ -141,10 +210,9 @@ public class MainActivity extends AppCompatActivity {
 
         // based on id present user with options to sort by popularity or highest rated
         if (id == R.id.sort_highest_rating) {
-            // todo: don't like the name, would prefer a single method that gets list of movies and I can pass popularity or rating as a param
-            getTopRatedMovies();
+            getMovieListBySort(MovieSortType.HIGHEST_RATING);
         } else if (id == R.id.sort_most_popular) {
-            getPopularMovies();
+            getMovieListBySort(MovieSortType.MOST_POPULAR);
         }
 
         return super.onOptionsItemSelected(item);
