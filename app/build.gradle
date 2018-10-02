@@ -4,14 +4,23 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.bfirestone.udacity.popularmovies"
-        minSdkVersion 15
+        minSdkVersion 24
         //noinspection OldTargetApi
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
-        resValue('string', 'TMDB_API_KEY', 'c06c6a52b86480ade117039b803682c3')
+        // should this all be in a diff properties file?
+        def TMDB_API_KEY = System.getenv("TMDB_API_KEY")
+
+        if (TMDB_API_KEY == null) {
+            Properties properties = new Properties()
+            properties.load(project.rootProject.file('local.properties').newDataInputStream())
+            TMDB_API_KEY = properties.getProperty('tmdb.api.key')
+        }
+
+        resValue('string', 'TMDB_API_KEY', "${TMDB_API_KEY}")
         resValue('string', 'TMDB_BASE_API_URL', 'https://api.themoviedb.org/3/')
         resValue('string', 'TMDB_BASE_IMG_URL', 'https://image.tmdb.org/t/p/w500')
     }
@@ -20,6 +29,10 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
     }
 }
 
