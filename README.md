@@ -7,7 +7,7 @@ The curent features for stage 1 of this app are:
 * View movie synopsis, release date, rating, popularity and genres
     
 # How to Build
-This app makes use of [The Movie Database](https://www.themoviedb.org) [API](https://www.themoviedb.org/documentation/api) to fetch:
+This app makes use of [The Movie Database API](https://www.themoviedb.org/documentation/api) to fetch:
 * Most Popular Movies
 * Highest Rated Movies
 * Genre List
@@ -26,4 +26,4 @@ tmdb.api.key=<your_api_key_goes_here>
 * [Moshi](https://github.com/square/moshi)
 
 # Android Developer Nanodegree
-[![udacity android developer nanodegree][https://www.udacity.com/android]]
+[udacity android developer nanodegree](https://www.udacity.com/android)
