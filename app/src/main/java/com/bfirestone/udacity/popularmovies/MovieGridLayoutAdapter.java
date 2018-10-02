@@ -9,14 +9,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bfirestone.udacity.popularmovies.models.MovieDetails;
+import com.bfirestone.udacity.popularmovies.models.Movie;
 import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 public class MovieGridLayoutAdapter extends RecyclerView.Adapter<MovieGridLayoutAdapter.MovieViewHolder> {
-    private List<MovieDetails> dataList;
+    private List<Movie> dataList;
     private Context context;
     final private MovieItemClickListener mOnMovieItemClickListener;
 
@@ -24,7 +24,7 @@ public class MovieGridLayoutAdapter extends RecyclerView.Adapter<MovieGridLayout
         void onMovieItemClick(int clickedItemIndex);
     }
 
-    public MovieGridLayoutAdapter(Context context, List<MovieDetails> dataList, MovieItemClickListener listener) {
+    public MovieGridLayoutAdapter(Context context, List<Movie> dataList, MovieItemClickListener listener) {
         this.context = context;
         this.dataList = dataList;
         this.mOnMovieItemClickListener = listener;
@@ -66,7 +66,7 @@ public class MovieGridLayoutAdapter extends RecyclerView.Adapter<MovieGridLayout
             itemView.setOnClickListener(this);
         }
 
-        void bindMovie(MovieDetails movie) {
+        void bindMovie(Movie movie) {
             String releaseDateText = "Release Date: " + movie.getReleaseDate();
             String moviePosterUrl = context.getResources().getString(R.string.TMDB_BASE_IMG_URL)
                     + movie.getPosterPath();

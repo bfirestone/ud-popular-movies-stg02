@@ -6,9 +6,10 @@ import android.os.Parcelable;
 
 import com.squareup.moshi.Json;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class MovieDetails implements Parcelable {
+public class Movie implements Parcelable {
 
     @Json(name = "poster_path")
     private String posterPath;
@@ -52,10 +53,12 @@ public class MovieDetails implements Parcelable {
     @Json(name ="vote_average")
     private double voteAverage;
 
-    public MovieDetails(String posterPath, boolean adult, String overview, String releaseDate,
-                        List<Integer> genreIds, int id, String originalTitle, String originalLanguage,
-                        String title, String backdropPath, double popularity, int voteCount, boolean video,
-                        double voteAverage) {
+    private List<String> genreNames;
+
+    public Movie(String posterPath, boolean adult, String overview, String releaseDate,
+                 List<Integer> genreIds, int id, String originalTitle, String originalLanguage,
+                 String title, String backdropPath, double popularity, int voteCount, boolean video,
+                 double voteAverage) {
 
         this.posterPath = posterPath;
         this.adult = adult;
@@ -73,11 +76,13 @@ public class MovieDetails implements Parcelable {
         this.voteAverage = voteAverage;
     }
 
-    private MovieDetails(Parcel in) {
+    private Movie(Parcel in) {
         posterPath = in.readString();
         adult = in.readByte() != 0;
         overview = in.readString();
         releaseDate = in.readString();
+        genreIds = new ArrayList<>();
+        in.readList(genreIds, List.class.getClassLoader());
         id = in.readInt();
         originalTitle = in.readString();
         originalLanguage = in.readString();
@@ -89,15 +94,15 @@ public class MovieDetails implements Parcelable {
         voteAverage = in.readDouble();
     }
 
-    public static final Creator<MovieDetails> CREATOR = new Creator<MovieDetails>() {
+    public static final Creator<Movie> CREATOR = new Creator<Movie>() {
         @Override
-        public MovieDetails createFromParcel(Parcel in) {
-            return new MovieDetails(in);
+        public Movie createFromParcel(Parcel in) {
+            return new Movie(in);
         }
 
         @Override
-        public MovieDetails[] newArray(int size) {
-            return new MovieDetails[size];
+        public Movie[] newArray(int size) {
+            return new Movie[size];
         }
     };
 
@@ -157,6 +162,10 @@ public class MovieDetails implements Parcelable {
         return voteAverage;
     }
 
+    public void setGenreNames(List<String> genreNames) {
+        this.genreNames = genreNames;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -168,6 +177,7 @@ public class MovieDetails implements Parcelable {
         parcel.writeByte((byte) (adult ? 1 : 0));
         parcel.writeString(overview);
         parcel.writeString(releaseDate);
+        parcel.writeList(genreIds);
         parcel.writeInt(id);
         parcel.writeString(originalTitle);
         parcel.writeString(originalLanguage);
@@ -181,7 +191,7 @@ public class MovieDetails implements Parcelable {
 
     @Override
     public String toString() {
-        return "MovieDetails{" +
+        return "Movie{" +
                 "posterPath='" + posterPath + '\'' +
                 ", adult=" + adult +
                 ", overview='" + overview + '\'' +

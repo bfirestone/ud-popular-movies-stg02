@@ -3,13 +3,15 @@ package com.bfirestone.udacity.popularmovies;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bfirestone.udacity.popularmovies.models.MovieDetails;
+import com.bfirestone.udacity.popularmovies.models.GenreParcelableSparseArray;
+import com.bfirestone.udacity.popularmovies.models.Movie;
 import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
+
+import java.util.List;
 
 
 public class DetailsActivity extends AppCompatActivity {
@@ -21,6 +23,9 @@ public class DetailsActivity extends AppCompatActivity {
     TextView movieReleaseDate;
     TextView movieVoteAverage;
     TextView moviePopularity;
+    TextView movieGenres;
+
+    private static GenreParcelableSparseArray genreParcelableSparseArray;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,9 +39,13 @@ public class DetailsActivity extends AppCompatActivity {
         movieReleaseDate = findViewById(R.id.tv_movie_details_release_date);
         movieVoteAverage = findViewById(R.id.tv_movie_details_vote_avg);
         moviePopularity = findViewById(R.id.tv_movie_details_popularity);
+        movieGenres = findViewById(R.id.tv_movie_details_genres);
 
         Intent intent = getIntent();
-        MovieDetails selectedMovie = intent.getParcelableExtra("Movie");
+        Movie selectedMovie = intent.getParcelableExtra("Movie");
+        genreParcelableSparseArray = intent.getParcelableExtra("GenreMap");
+
+        String genreNameList = getGenresNames(selectedMovie.getGenreIds());
 
         movieTitle.setText(selectedMovie.getTitle());
         movieLanguage.setText(new StringBuilder("Language: ").append(selectedMovie.getOriginalLanguage()));
@@ -44,6 +53,7 @@ public class DetailsActivity extends AppCompatActivity {
         movieReleaseDate.setText(new StringBuilder("Release Date: ").append(selectedMovie.getReleaseDate()));
         movieVoteAverage.setText(new StringBuilder("Rating: ").append(selectedMovie.getVoteAverage()));
         moviePopularity.setText(new StringBuilder("Popularity: ").append(selectedMovie.getPopularity()));
+        movieGenres.setText(new StringBuilder("Genres: ").append(genreNameList));
 
         Picasso.Builder builder = new Picasso.Builder(this);
         builder.downloader(new OkHttp3Downloader(this));
@@ -53,4 +63,15 @@ public class DetailsActivity extends AppCompatActivity {
                 .into(moviePoster);
     }
 
+    private String getGenresNames(List<Integer> movieGenreIds) {
+        StringBuilder sb = new StringBuilder();
+
+        movieGenreIds.forEach(genreId-> {
+            sb.append(genreParcelableSparseArray.get(genreId));
+            sb.append(", ");
+        });
+
+        return sb.substring(0, sb.length() - 2);
+
+    }
 }

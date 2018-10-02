@@ -1,6 +1,7 @@
 package com.bfirestone.udacity.popularmovies.service;
 
-import com.bfirestone.udacity.popularmovies.models.MovieResponse;
+import com.bfirestone.udacity.popularmovies.models.GenreListResponse;
+import com.bfirestone.udacity.popularmovies.models.MovieListResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -9,14 +10,20 @@ import retrofit2.http.Query;
 
 public interface MovieDatabaseService {
     @GET("movie/top_rated")
-    Call<MovieResponse> getTopRatedMovies(@Query("api_key") String apiKey,
-                                          @Query("page") int page);
+    Call<MovieListResponse> getTopRatedMovies(@Query("api_key") String apiKey);
 
     @GET("movie/popular")
-    Call<MovieResponse> getPopularMovies(@Query("api_key") String apiKey,
-                                         @Query("page") int page);
+    Call<MovieListResponse> getPopularMovies(@Query("api_key") String apiKey);
+
+    @GET("genre/movie/list")
+    Call<GenreListResponse> getGenreList(@Query("api_key") String apiKey);
+
 
     @GET("movie/{id}")
-    Call<MovieResponse> getMovieDetails(@Query("api_key") String apiKey,
-                                        @Path("id") String id);
+    Call<MovieListResponse> getMovieDetails(@Path("id") int id,
+                                            @Query("api_key") String apiKey);
+
+    @GET("genre/{id}")
+    Call<GenreListResponse> getGenreDetails(@Path("id") int id,
+                                            @Query("api_key") String apiKey);
 }

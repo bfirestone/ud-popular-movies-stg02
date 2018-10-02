@@ -4,13 +4,13 @@ import com.squareup.moshi.Json;
 
 import java.util.List;
 
-public class MovieResponse {
+public class MovieListResponse {
 
     @Json(name ="page")
     private int page;
 
     @Json(name ="results")
-    private List<MovieDetails> results;
+    private List<Movie> results;
 
     @Json(name ="total_results")
     private int totalResults;
@@ -18,7 +18,7 @@ public class MovieResponse {
     @Json(name ="total_pages")
     private int totalPages;
 
-    public MovieResponse(int page, List<MovieDetails> results, int totalResults, int totalPages) {
+    public MovieListResponse(int page, List<Movie> results, int totalResults, int totalPages) {
 
         this.page = page;
         this.results = results;
@@ -30,7 +30,7 @@ public class MovieResponse {
         return page;
     }
 
-    public List<MovieDetails> getResults() {
+    public List<Movie> getResults() {
         return results;
     }
 
@@ -40,6 +40,16 @@ public class MovieResponse {
 
     public int getTotalPages() {
         return totalPages;
+    }
+
+    @Override
+    public String toString() {
+        return "MovieListResponse{" +
+                "page=" + page +
+                ", results=" + results +
+                ", totalResults=" + totalResults +
+                ", totalPages=" + totalPages +
+                '}';
     }
 }
 
