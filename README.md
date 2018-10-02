@@ -1,5 +1,5 @@
 # Popular Movies
-Developed for the Android Developer Nanodegree program
+Developed for the [Udacity Android Developer Nanodegree](https://www.udacity.com/android) program
 
 # Features
 The curent features for stage 1 of this app are:
@@ -24,6 +24,3 @@ tmdb.api.key=<your_api_key_goes_here>
 ## Libs
 * [Retrofit](https://github.com/square/retrofit)
 * [Moshi](https://github.com/square/moshi)
-
-# Android Developer Nanodegree
-[udacity android developer nanodegree](https://www.udacity.com/android)
