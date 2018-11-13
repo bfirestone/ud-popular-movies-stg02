@@ -47,7 +47,7 @@ public class DetailsActivity extends AppCompatActivity {
 
         String genreNameList = getGenresNames(selectedMovie.getGenreIds());
 
-        movieTitle.setText(selectedMovie.getTitle());
+        movieTitle.setText(new StringBuilder("Title: ").append(selectedMovie.getTitle()));
         movieLanguage.setText(new StringBuilder("Language: ").append(selectedMovie.getOriginalLanguage()));
         moviePlot.setText(selectedMovie.getOverview());
         movieReleaseDate.setText(new StringBuilder("Release Date: ").append(selectedMovie.getReleaseDate()));

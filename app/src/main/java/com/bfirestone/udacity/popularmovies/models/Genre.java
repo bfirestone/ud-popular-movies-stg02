@@ -1,6 +1,8 @@
 package com.bfirestone.udacity.popularmovies.models;
 
 
+import android.support.annotation.NonNull;
+
 import com.squareup.moshi.Json;
 
 public class Genre {
@@ -25,6 +27,7 @@ public class Genre {
         return name;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "GenreListResponse{" +
