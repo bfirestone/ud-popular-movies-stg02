@@ -1,14 +1,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:genreId="@+genreId/sort_highest_rating"
+        android:id="@+id/sort_highest_rating"
         android:title="@string/sort_highest_rating"
         android:orderInCategory="1"
         android:visible="true"
         app:showAsAction="never" />
 
     <item
-        android:genreId="@+genreId/sort_most_popular"
+        android:id="@+id/sort_most_popular"
         android:title="@string/sort_most_popular"
         android:visible="true"
         android:orderInCategory="2"

@@ -11,62 +11,59 @@
         android:orientation="vertical">
 
         <ImageView
-            android:genreId="@+genreId/iv_movie_poster_details"
+            android:id="@+id/iv_movie_poster_details"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:layout_marginStart="8sp"
-            android:layout_marginEnd="8sp"
             android:layout_marginBottom="8sp"
             android:adjustViewBounds="true"
             android:contentDescription="@string/iv_movie_selected"
             android:scaleType="centerCrop"
-            app:layout_constraintBottom_toBottomOf="@+genreId/tv_movie_details_title"
+            app:layout_constraintBottom_toTopOf="@+id/tv_movie_details_title"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintStart_toStartOf="parent" />
 
 
         <TextView
-            android:genreId="@+genreId/tv_movie_details_title"
+            android:id="@+id/tv_movie_details_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8sp"
-            android:layout_marginTop="2sp"
+            android:layout_marginTop="2dp"
             android:layout_marginEnd="8sp"
             android:text="@string/tv_movie_details_title"
             android:textColor="@color/colorPrimaryText"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+genreId/iv_movie_poster_details" />
+            app:layout_constraintTop_toBottomOf="@+id/iv_movie_poster_details" />
 
         <TextView
-            android:genreId="@+genreId/tv_movie_details_language"
+            android:id="@+id/tv_movie_details_language"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8sp"
-            android:layout_marginTop="2sp"
+            android:layout_marginTop="2dp"
             android:layout_marginEnd="8sp"
             android:text="@string/tv_movie_details_language"
             android:textColor="@color/colorPrimaryText"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+genreId/tv_movie_details_title"/>
+            app:layout_constraintTop_toBottomOf="@+id/tv_movie_details_title" />
 
         <TextView
-            android:genreId="@+genreId/tv_movie_details_release_date"
+            android:id="@+id/tv_movie_details_release_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8sp"
-            android:layout_marginTop="2sp"
+            android:layout_marginTop="2dp"
             android:layout_marginEnd="8sp"
             android:text="@string/tv_movie_details_release_date"
             android:textColor="@color/colorPrimaryText"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+genreId/tv_movie_details_language" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_movie_details_language" />
 
         <TextView
-            android:genreId="@+genreId/tv_movie_details_vote_avg"
+            android:id="@+id/tv_movie_details_vote_avg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8sp"
@@ -76,10 +73,10 @@
             android:textColor="@color/colorPrimaryText"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+genreId/tv_movie_details_release_date" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_movie_details_release_date" />
 
         <TextView
-            android:genreId="@+genreId/tv_movie_details_popularity"
+            android:id="@+id/tv_movie_details_popularity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8sp"
@@ -89,10 +86,10 @@
             android:textColor="@color/colorPrimaryText"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+genreId/tv_movie_details_vote_avg" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_movie_details_vote_avg" />
 
         <TextView
-            android:genreId="@+genreId/tv_movie_details_genres"
+            android:id="@+id/tv_movie_details_genres"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8sp"
@@ -102,10 +99,10 @@
             android:textColor="@color/colorPrimaryText"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+genreId/tv_movie_details_popularity" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_movie_details_popularity" />
 
         <TextView
-            android:genreId="@+genreId/tv_movie_synopsis_heading"
+            android:id="@+id/tv_movie_synopsis_heading"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10sp"
@@ -116,10 +113,10 @@
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+genreId/tv_movie_details_genres" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_movie_details_genres" />
 
         <TextView
-            android:genreId="@+genreId/tv_movie_details_synopsis"
+            android:id="@+id/tv_movie_details_synopsis"
             style="@style/BodySmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -130,7 +127,7 @@
             android:textColor="@color/colorPrimaryText"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+genreId/tv_movie_synopsis_heading" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_movie_synopsis_heading" />
 
     </android.support.constraint.ConstraintLayout>
 

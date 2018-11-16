@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
                 call = movieDatabaseService.getPopularMovies(apiKey);
             }
 
-            Log.i(LOG_TAG, "movie db api" + movieServiceUrl);
+            Log.i(LOG_TAG, "movie db api: " + movieServiceUrl);
 
             call.enqueue(new Callback<MovieListResponse>() {
                 @Override
