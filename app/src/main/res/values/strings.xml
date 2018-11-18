@@ -13,4 +13,5 @@
     <string name="tv_movie_details_release_date">Release Date:</string>
     <string name="tv_movie_details_language">Language:</string>
     <string name="tv_movie_details_title">Title:</string>
+    <string name="display_faves">favorites</string>
 </resources>

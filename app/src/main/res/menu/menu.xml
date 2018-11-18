@@ -13,4 +13,11 @@
         android:visible="true"
         android:orderInCategory="2"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/display_faves"
+        android:title="@string/display_faves"
+        android:visible="true"
+        android:orderInCategory="3"
+        app:showAsAction="never" />
 </menu>

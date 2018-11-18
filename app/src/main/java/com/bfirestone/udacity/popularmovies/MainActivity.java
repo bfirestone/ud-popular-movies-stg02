@@ -68,42 +68,52 @@ public class MainActivity extends AppCompatActivity {
 
             fetchGenreMap();
 
-            if (movieSortType == MovieSortType.HIGHEST_RATING) {
-                setTitle(R.string.sort_highest_rating);
-                movieServiceUrl = movieDatabaseService.getTopRatedMovies(apiKey)
-                        .request().url().toString();
-                call = movieDatabaseService.getTopRatedMovies(apiKey);
+            if (movieSortType == MovieSortType.FAVORITES) {
+                // get data from room
+                Log.i(LOG_TAG, "should do something here");
+//                movieDetails = response.body().getResults();
+//                Log.i(LOG_TAG, "[movie_details] " + movieDetails);
+//                generateMovieList(movieDetails);
+//                Log.d(LOG_TAG, "[top_rated_movies] num fetched=" + movieDetails.size());
             } else {
-                setTitle(R.string.sort_most_popular);
-                movieServiceUrl = movieDatabaseService.getPopularMovies(apiKey)
-                        .request().url().toString();
-                call = movieDatabaseService.getPopularMovies(apiKey);
+                if (movieSortType == MovieSortType.HIGHEST_RATING) {
+                    setTitle(R.string.sort_highest_rating);
+                    movieServiceUrl = movieDatabaseService.getTopRatedMovies(apiKey)
+                            .request().url().toString();
+                    call = movieDatabaseService.getTopRatedMovies(apiKey);
+                } else {
+                    setTitle(R.string.sort_most_popular);
+                    movieServiceUrl = movieDatabaseService.getPopularMovies(apiKey)
+                            .request().url().toString();
+                    call = movieDatabaseService.getPopularMovies(apiKey);
+                }
+
+                Log.i(LOG_TAG, "movie db api: " + movieServiceUrl);
+
+                call.enqueue(new Callback<MovieListResponse>() {
+                    @Override
+                    public void onResponse(@NonNull Call<MovieListResponse> call,
+                                           @NonNull Response<MovieListResponse> response) {
+
+                        if (response.isSuccessful() && response.body() != null) {
+                            movieDetails = response.body().getResults();
+                            Log.i(LOG_TAG, "[movie_details] " + movieDetails);
+                            generateMovieList(movieDetails);
+                            Log.d(LOG_TAG, "[top_rated_movies] num fetched=" + movieDetails.size());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<MovieListResponse> call,
+                                          @NonNull Throwable t) {
+
+                        Toast.makeText(
+                                MainActivity.this, "Error Fetching Movie List",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
-            Log.i(LOG_TAG, "movie db api: " + movieServiceUrl);
-
-            call.enqueue(new Callback<MovieListResponse>() {
-                @Override
-                public void onResponse(@NonNull Call<MovieListResponse> call,
-                                       @NonNull Response<MovieListResponse> response) {
-
-                    if (response.isSuccessful() && response.body() != null) {
-                        movieDetails = response.body().getResults();
-                        Log.i(LOG_TAG, "[movie_details] " + movieDetails);
-                        generateMovieList(movieDetails);
-                        Log.d(LOG_TAG, "[top_rated_movies] num fetched=" + movieDetails.size());
-                    }
-                }
-
-                @Override
-                public void onFailure(@NonNull Call<MovieListResponse> call,
-                                      @NonNull Throwable t) {
-
-                    Toast.makeText(
-                            MainActivity.this, "Error Fetching Movie List",
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
         } else {
             Log.i(LOG_TAG, "[network] not available");
         }
