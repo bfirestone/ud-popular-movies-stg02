@@ -6,7 +6,7 @@
     <string name="movie_release_date">release_date</string>
     <string name="movie_poster_image">moviePosterImage</string>
     <string name="iv_movie_selected">Movie_selected</string>
-    <string name="tv_movie_plot_synopsis">Synopsis:</string>
+    <string name="tv_movie_plot_overview">Overview:</string>
     <string name="tv_movie_details_genres">Genres:</string>
     <string name="tv_movie_details_popularity">Popularity:</string>
     <string name="tv_movie_details_vote_avg">Rating:</string>
@@ -14,4 +14,12 @@
     <string name="tv_movie_details_language">Language:</string>
     <string name="tv_movie_details_title">Title:</string>
     <string name="display_faves">favorites</string>
+    <string name="default_text">default_text</string>
+    <string name="ib_fave_not_faved">Save to favorites</string>
+    <string name="fave_removed">removed from favorites</string>
+    <string name="fave_added">added to favorites</string>
+    <string name="move_cover">Move Cover</string>
+    <string name="desc_movie_poster_image">Movie Poster Image</string>
+    <string name="FavesNotFound">No Faves Found</string>
+    <string name="error_fetching_genre_list">Error Fetching Genre List</string>
 </resources>

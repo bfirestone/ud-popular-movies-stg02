@@ -1,5 +1,6 @@
 package com.bfirestone.udacity.popularmovies.models;
 
+import com.bfirestone.udacity.popularmovies.database.entity.MovieEntity;
 import com.squareup.moshi.Json;
 
 import java.util.List;
@@ -10,7 +11,7 @@ public class MovieListResponse {
     private int page;
 
     @Json(name ="results")
-    private List<Movie> results;
+    private List<MovieEntity> results;
 
     @Json(name ="total_results")
     private int totalResults;
@@ -18,7 +19,7 @@ public class MovieListResponse {
     @Json(name ="total_pages")
     private int totalPages;
 
-    public MovieListResponse(int page, List<Movie> results, int totalResults, int totalPages) {
+    public MovieListResponse(int page, List<MovieEntity> results, int totalResults, int totalPages) {
 
         this.page = page;
         this.results = results;
@@ -30,7 +31,7 @@ public class MovieListResponse {
         return page;
     }
 
-    public List<Movie> getResults() {
+    public List<MovieEntity> getResults() {
         return results;
     }
 

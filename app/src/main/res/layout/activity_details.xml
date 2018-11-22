@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimaryLight">
@@ -18,116 +19,201 @@
             android:adjustViewBounds="true"
             android:contentDescription="@string/iv_movie_selected"
             android:scaleType="centerCrop"
-            app:layout_constraintBottom_toTopOf="@+id/tv_movie_details_title"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
 
         <TextView
             android:id="@+id/tv_movie_details_title"
-            android:layout_width="match_parent"
+            android:layout_width="160sp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8sp"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="8sp"
-            android:text="@string/tv_movie_details_title"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:fontFamily="sans-serif"
+            android:gravity="start"
             android:textColor="@color/colorPrimaryText"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/iv_movie_poster_details" />
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@+id/iv_movie_cover_details"
+            app:layout_constraintTop_toBottomOf="@+id/iv_movie_poster_details"
+            tools:text="Fantastic Beasts: The Crimes of Grindelwald" />
 
         <TextView
-            android:id="@+id/tv_movie_details_language"
-            android:layout_width="match_parent"
+            android:id="@+id/tv_movie_details_language_label"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8sp"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="8sp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="10dp"
+            android:fontFamily="sans-serif"
             android:text="@string/tv_movie_details_language"
             android:textColor="@color/colorPrimaryText"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_movie_details_title" />
-
-        <TextView
-            android:id="@+id/tv_movie_details_release_date"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8sp"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="8sp"
-            android:text="@string/tv_movie_details_release_date"
-            android:textColor="@color/colorPrimaryText"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_movie_details_language" />
-
-        <TextView
-            android:id="@+id/tv_movie_details_vote_avg"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8sp"
-            android:layout_marginTop="2sp"
-            android:layout_marginEnd="8sp"
-            android:text="@string/tv_movie_details_vote_avg"
-            android:textColor="@color/colorPrimaryText"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iv_movie_cover_details"
             app:layout_constraintTop_toBottomOf="@+id/tv_movie_details_release_date" />
 
         <TextView
-            android:id="@+id/tv_movie_details_popularity"
-            android:layout_width="match_parent"
+            android:id="@+id/tv_movie_details_language"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8sp"
-            android:layout_marginTop="2sp"
-            android:layout_marginEnd="8sp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="10dp"
+            android:fontFamily="sans-serif"
+            android:gravity="start"
+            android:textColor="@color/colorSecondaryText"
+            app:layout_constraintStart_toEndOf="@+id/tv_movie_details_language_label"
+            app:layout_constraintTop_toBottomOf="@+id/tv_movie_details_release_date"
+            tools:text="en" />
+
+        <TextView
+            android:id="@+id/tv_movie_details_release_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:fontFamily="sans-serif"
+            android:textAlignment="viewStart"
+            android:textStyle="bold"
+            android:textColor="@color/colorSecondaryText"
+            app:layout_constraintStart_toEndOf="@+id/iv_movie_cover_details"
+            app:layout_constraintTop_toBottomOf="@+id/tv_movie_details_title"
+            tools:text="November 2018" />
+
+        <TextView
+            android:id="@+id/tv_movie_details_vote_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="2dp"
+            android:fontFamily="sans-serif"
+            android:text="@string/tv_movie_details_vote_avg"
+            android:textColor="@color/colorPrimaryText"
+            app:layout_constraintStart_toEndOf="@+id/iv_movie_cover_details"
+            app:layout_constraintTop_toBottomOf="@+id/tv_movie_details_language_label" />
+
+        <TextView
+            android:id="@+id/tv_movie_details_vote_avg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="2dp"
+            android:fontFamily="sans-serif"
+            android:textAlignment="viewStart"
+            android:textColor="@color/colorSecondaryText"
+            app:layout_constraintStart_toEndOf="@+id/tv_movie_details_vote_label"
+            app:layout_constraintTop_toBottomOf="@+id/tv_movie_details_language_label"
+            tools:text="7.3/10" />
+
+        <TextView
+            android:id="@+id/tv_movie_details_popularity_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="2dp"
+            android:fontFamily="sans-serif"
             android:text="@string/tv_movie_details_popularity"
             android:textColor="@color/colorPrimaryText"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_movie_details_vote_avg" />
+            app:layout_constraintStart_toEndOf="@+id/iv_movie_cover_details"
+            app:layout_constraintTop_toBottomOf="@+id/tv_movie_details_vote_label" />
 
         <TextView
-            android:id="@+id/tv_movie_details_genres"
-            android:layout_width="match_parent"
+            android:id="@+id/tv_movie_details_popularity"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8sp"
-            android:layout_marginTop="2sp"
-            android:layout_marginEnd="8sp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="2dp"
+            android:fontFamily="sans-serif"
+            android:textAlignment="viewStart"
+            android:textColor="@color/colorSecondaryText"
+            app:layout_constraintStart_toEndOf="@+id/tv_movie_details_popularity_label"
+            app:layout_constraintTop_toBottomOf="@+id/tv_movie_details_vote_avg"
+            tools:text="171.45" />
+
+        <TextView
+            android:id="@+id/tv_movie_details_genres_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="2dp"
+            android:fontFamily="sans-serif"
             android:text="@string/tv_movie_details_genres"
             android:textColor="@color/colorPrimaryText"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_movie_details_popularity" />
+            app:layout_constraintStart_toEndOf="@+id/iv_movie_cover_details"
+            app:layout_constraintTop_toBottomOf="@+id/tv_movie_details_popularity_label" />
 
         <TextView
-            android:id="@+id/tv_movie_synopsis_heading"
+            android:id="@+id/tv_movie_details_genres_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:fontFamily="sans-serif"
+            android:textColor="@color/colorSecondaryText"
+            app:layout_constraintStart_toEndOf="@+id/iv_movie_cover_details"
+            app:layout_constraintTop_toBottomOf="@+id/tv_movie_details_genres_label"
+            tools:text="Drama, Music, Romance" />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="12dp"
+            android:background="@color/colorDivider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_movie_details_genres_list" />
+
+
+        <TextView
+            android:id="@+id/tv_movie_overview_heading"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10sp"
-            android:layout_marginStart="8sp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="8sp"
-            android:text="@string/tv_movie_plot_synopsis"
+            android:text="@string/tv_movie_plot_overview"
             android:textColor="@color/colorPrimaryText"
+            android:textStyle="bold"
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_movie_details_genres" />
+            app:layout_constraintTop_toBottomOf="@+id/divider" />
 
         <TextView
-            android:id="@+id/tv_movie_details_synopsis"
-            style="@style/BodySmall"
+            android:id="@+id/tv_movie_details_overview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10sp"
-            android:layout_marginTop="2sp"
             android:layout_marginStart="8sp"
+            android:layout_marginTop="2sp"
             android:layout_marginEnd="8sp"
-            android:textColor="@color/colorPrimaryText"
+            android:textAlignment="viewStart"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_movie_synopsis_heading" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_movie_overview_heading"
+            tools:text="Gellert Grindelwald has escaped imprisonment and has begun gathering followers to his cause—elevating wizards above all non-magical beings. The only one capable of putting a stop to him is the wizard he once called his closest friend, Albus Dumbledore. However, Dumbledore will need to seek help from the wizard who had thwarted Grindelwald once before, his former student Newt Scamander, who agrees to help, unaware of the dangers that lie ahead. Lines are drawn as love and loyalty are tested, even among the truest friends and family, in an increasingly divided wizarding world." />
+
+        <ImageButton
+            android:id="@+id/ib_movie_fave_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="8dp"
+            android:background="@color/colorPrimaryLight"
+            android:contentDescription="@string/ib_fave_not_faved"
+            android:tint="@color/colorFaveButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/iv_movie_poster_details"
+            app:srcCompat="@drawable/selector_fave_button" />
+
+        <ImageView
+            android:id="@+id/iv_movie_cover_details"
+            android:layout_width="130dp"
+            android:layout_height="185dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="180dp"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/move_cover"
+            android:cropToPadding="false"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:srcCompat="@drawable/movie_cover_fantastic_beasts_2018" />
 
     </android.support.constraint.ConstraintLayout>
 

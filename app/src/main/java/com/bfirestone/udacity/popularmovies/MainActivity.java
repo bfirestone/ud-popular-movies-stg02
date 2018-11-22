@@ -1,5 +1,6 @@
 package com.bfirestone.udacity.popularmovies;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,70 +12,91 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.bfirestone.udacity.popularmovies.Utils.MovieApiClient;
 import com.bfirestone.udacity.popularmovies.Utils.NetworkConnectionDetector;
-import com.bfirestone.udacity.popularmovies.models.GenreListResponse;
+import com.bfirestone.udacity.popularmovies.adapters.MovieAdapter;
+import com.bfirestone.udacity.popularmovies.database.AppDatabase;
+import com.bfirestone.udacity.popularmovies.database.entity.MovieEntity;
 import com.bfirestone.udacity.popularmovies.models.GenreParcelableSparseArray;
-import com.bfirestone.udacity.popularmovies.models.Movie;
 import com.bfirestone.udacity.popularmovies.models.MovieListResponse;
 import com.bfirestone.udacity.popularmovies.service.MovieDatabaseService;
+import com.bfirestone.udacity.popularmovies.view.MainActivityViewModel;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.moshi.MoshiConverterFactory;
 
-public class MainActivity extends AppCompatActivity {
+import static com.bfirestone.udacity.popularmovies.AppConstants.SAVED_SORT_TYPE;
+
+public class MainActivity extends AppCompatActivity implements MovieAdapter.ItemClickListener {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
-    public RecyclerView mMovieList;
+    @BindView(R.id.rv_main)
+    RecyclerView mRecyclerView;
+
+    private MainActivityViewModel viewModel;
     private static String apiKey;
-    private static final MovieSortType defaultSort = MovieSortType.MOST_POPULAR;
-    public List<Movie> movieDetails;
-    public GenreListResponse genreList;
+    private MovieSortType movieSortType;
     private MovieDatabaseService movieDatabaseService;
+    private MovieAdapter mAdapter;
     public GenreParcelableSparseArray genreParcelableSparseArray;
+    private AppDatabase mAppDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
         apiKey = getResources().getString(R.string.TMDB_API_KEY);
 
-        Retrofit retrofit = new retrofit2.Retrofit.Builder()
-                .baseUrl(getResources().getString(R.string.TMDB_BASE_API_URL))
-                .addConverterFactory(MoshiConverterFactory.create())
-                .build();
+        // Initialize the adapter and attach it to the RecyclerView
+        mAdapter = new MovieAdapter(this, this);
 
+        // Setup recycler view
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        mRecyclerView.setAdapter(mAdapter);
+
+        mAppDatabase = AppDatabase.getInstance(getApplicationContext());
         genreParcelableSparseArray = new GenreParcelableSparseArray();
-        movieDatabaseService = retrofit.create(MovieDatabaseService.class);
 
-        getMovieListBySort(defaultSort);
+        movieDatabaseService = new MovieApiClient()
+                .getRetrofitClient(getResources().getString(R.string.TMDB_BASE_API_URL))
+                .create(MovieDatabaseService.class);
+
+        getMovieListBySort(MovieSortType.MOST_POPULAR);
     }
 
-
     private void getMovieListBySort(MovieSortType movieSortType) {
-        mMovieList = findViewById(R.id.rv_main);
+        this.movieSortType = movieSortType;
 
         NetworkConnectionDetector detector = new NetworkConnectionDetector();
+
+        viewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
 
         if (detector.isNetworkAvailable(this)) {
 
             Call<MovieListResponse> call;
             String movieServiceUrl;
 
-            fetchGenreMap();
-
             if (movieSortType == MovieSortType.FAVORITES) {
-                // get data from room
-                Log.i(LOG_TAG, "should do something here");
-//                movieDetails = response.body().getResults();
-//                Log.i(LOG_TAG, "[movie_details] " + movieDetails);
-//                generateMovieList(movieDetails);
-//                Log.d(LOG_TAG, "[top_rated_movies] num fetched=" + movieDetails.size());
+                setTitle(R.string.display_faves);
+                viewModel.getFavedMovies().observe(this, favorites -> {
+                    if (favorites != null) {
+                        mAdapter.clear();
+                        mAdapter.setMovieList(favorites);
+
+                        if (mAdapter.getMovieEntityList().size() == 0) {
+                            Toast.makeText(getApplicationContext(), R.string.FavesNotFound,
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
             } else {
                 if (movieSortType == MovieSortType.HIGHEST_RATING) {
                     setTitle(R.string.sort_highest_rating);
@@ -96,9 +118,10 @@ public class MainActivity extends AppCompatActivity {
                                            @NonNull Response<MovieListResponse> response) {
 
                         if (response.isSuccessful() && response.body() != null) {
-                            movieDetails = response.body().getResults();
+                            List<MovieEntity> movieDetails = response.body().getResults();
                             Log.i(LOG_TAG, "[movie_details] " + movieDetails);
-                            generateMovieList(movieDetails);
+                            mAdapter.clear();
+                            mAdapter.setMovieList(movieDetails);
                             Log.d(LOG_TAG, "[top_rated_movies] num fetched=" + movieDetails.size());
                         }
                     }
@@ -108,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
                                           @NonNull Throwable t) {
 
                         Toast.makeText(
-                                MainActivity.this, "Error Fetching Movie List",
+                                MainActivity.this, "Error Fetching MovieEntity List",
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -117,50 +140,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Log.i(LOG_TAG, "[network] not available");
         }
-    }
-
-    private void fetchGenreMap() {
-
-        Call<GenreListResponse> call = movieDatabaseService.getGenreList(apiKey);
-
-        call.enqueue(new Callback<GenreListResponse>() {
-            @Override
-            public void onResponse(@NonNull Call<GenreListResponse> call,
-                                   @NonNull Response<GenreListResponse> response) {
-
-                if (response.isSuccessful() && response.body() != null) {
-                    response.body().getGenres().forEach(genre -> genreParcelableSparseArray.add(genre.getId(), genre.getName()));
-                    Log.i(LOG_TAG, "[genre_list] " + genreList);
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<GenreListResponse> call,
-                                  @NonNull Throwable t) {
-
-                Toast.makeText(
-                        MainActivity.this, "Error Fetching Movie List",
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void generateMovieList(final List<Movie> results) {
-        MovieGridLayoutAdapter.MovieItemClickListener movieItemClickListener = movieItemIndex -> {
-            Intent intent = new Intent(MainActivity.this, DetailsActivity.class);
-            Movie movie = results.get(movieItemIndex);
-            Log.i(LOG_TAG, "[movie] " + movie);
-            intent.putExtra("Movie", movie);
-            intent.putExtra("GenreMap", genreParcelableSparseArray);
-            startActivity(intent);
-        };
-
-        MovieGridLayoutAdapter gridLayoutAdapter = new MovieGridLayoutAdapter(this,
-                results, movieItemClickListener);
-
-        mMovieList.setHasFixedSize(true);
-        mMovieList.setLayoutManager(new GridLayoutManager(this, 2));
-        mMovieList.setAdapter(gridLayoutAdapter);
     }
 
     @Override
@@ -178,8 +157,25 @@ public class MainActivity extends AppCompatActivity {
             getMovieListBySort(MovieSortType.HIGHEST_RATING);
         } else if (id == R.id.sort_most_popular) {
             getMovieListBySort(MovieSortType.MOST_POPULAR);
+        } else if (id == R.id.display_faves) {
+            getMovieListBySort(MovieSortType.FAVORITES);
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        MovieSortType.valueOf("asd");
+        outState.putBoolean(SAVED_SORT_TYPE, MovieSortType.valueOf(movieSortType));
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onMovieItemClick(int clickedItemIndex) {
+        Intent intent = new Intent(MainActivity.this, DetailsActivity.class);
+        Log.i(LOG_TAG, "[SelectedMovie] " + clickedItemIndex);
+        intent.putExtra("MovieEntity", mAdapter.getMovieEntityList().get(clickedItemIndex));
+        startActivity(intent);
     }
 }

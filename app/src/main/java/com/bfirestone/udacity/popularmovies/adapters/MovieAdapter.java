@@ -1,32 +1,35 @@
-package com.bfirestone.udacity.popularmovies;
+package com.bfirestone.udacity.popularmovies.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.bfirestone.udacity.popularmovies.models.Movie;
+import com.bfirestone.udacity.popularmovies.R;
+import com.bfirestone.udacity.popularmovies.database.entity.MovieEntity;
 import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class MovieGridLayoutAdapter extends RecyclerView.Adapter<MovieGridLayoutAdapter.MovieViewHolder> {
-    private List<Movie> dataList;
-    private Context context;
-    final private MovieItemClickListener mOnMovieItemClickListener;
+public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
+    private static final String LOG_TAG = MovieAdapter.class.getSimpleName();
 
-    public interface MovieItemClickListener {
+    private List<MovieEntity> movieEntityList;
+    private Context context;
+    final private ItemClickListener mItemClickListener;
+
+    public interface ItemClickListener {
         void onMovieItemClick(int clickedItemIndex);
     }
 
-    public MovieGridLayoutAdapter(Context context, List<Movie> dataList, MovieItemClickListener listener) {
+    public MovieAdapter(Context context, ItemClickListener listener) {
         this.context = context;
-        this.dataList = dataList;
-        this.mOnMovieItemClickListener = listener;
+        this.mItemClickListener = listener;
     }
 
     @NonNull
@@ -41,16 +44,34 @@ public class MovieGridLayoutAdapter extends RecyclerView.Adapter<MovieGridLayout
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
-        holder.bindMovie(dataList.get(position));
+        holder.bindMovie(movieEntityList.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return dataList.size();
+        if (movieEntityList == null) {
+            return 0;
+        }
+        return movieEntityList.size();
+    }
+
+    public List<MovieEntity> getMovieEntityList() {
+        return movieEntityList;
+    }
+
+    public void clear() {
+        if (movieEntityList != null) {
+            movieEntityList.clear();
+            notifyDataSetChanged();
+        }
+    }
+
+    public void setMovieList(List<MovieEntity> movieEntityList) {
+        this.movieEntityList = movieEntityList;
+        notifyDataSetChanged();
     }
 
     class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
         Context mContext;
         ImageView coverImage;
 
@@ -61,9 +82,11 @@ public class MovieGridLayoutAdapter extends RecyclerView.Adapter<MovieGridLayout
             itemView.setOnClickListener(this);
         }
 
-        void bindMovie(Movie movie) {
+        void bindMovie(MovieEntity movie) {
             String moviePosterUrl = context.getResources().getString(R.string.TMDB_BASE_IMG_URL)
                     + movie.getPosterPath();
+
+            Log.i(LOG_TAG, "fetching poster from: " + moviePosterUrl);
 
             Picasso.Builder builder = new Picasso.Builder(context);
 
@@ -72,12 +95,21 @@ public class MovieGridLayoutAdapter extends RecyclerView.Adapter<MovieGridLayout
                     .placeholder((R.drawable.gradient_background))
                     .error(R.drawable.ic_launcher_background)
                     .into(coverImage);
+
+            // TODO: Why doesn't glide display properly?
+//            GlideApp.with(context)
+//                    .load(moviePosterUrl)
+//                    .placeholder((R.drawable.gradient_background))
+//                    .error(R.drawable.ic_launcher_background)
+//                    .skipMemoryCache(true)
+//                    .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+//                    .into(coverImage);
         }
 
         @Override
         public void onClick(View v) {
             int clickedPosition = getAdapterPosition();
-            mOnMovieItemClickListener.onMovieItemClick(clickedPosition);
+            mItemClickListener.onMovieItemClick(clickedPosition);
         }
     }
 }

@@ -1,98 +1,135 @@
 package com.bfirestone.udacity.popularmovies.database.entity;
 
+import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.os.Parcel;
+import android.os.Parcelable;
 
+import com.bfirestone.udacity.popularmovies.Utils.DisplayUtils;
+import com.squareup.moshi.Json;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.bfirestone.udacity.popularmovies.AppConstants.DB_TABLE_MOVIES;
 
 @Entity(tableName = DB_TABLE_MOVIES)
-public class MovieEntity {
+public class MovieEntity implements Parcelable {
 
+    @Json(name ="id")
+    @ColumnInfo(name ="id")
     @PrimaryKey
-    private int movieId;
-    private int voteCount;
-    private boolean video;
-    private double voteAverage;
-    private String title;
-    private double popularity;
+    private int id;
+
+    @Json(name = "poster_path")
+    @ColumnInfo(name = "poster_path")
     private String posterPath;
-    private String originalLanguage;
-    private String originalTitle;
-    private List<Integer> genreIds;
-    private String backdropPath;
+
+    @Json(name ="adult")
+    @ColumnInfo(name ="adult")
     private boolean adult;
+
+    @Json(name ="overview")
+    @ColumnInfo(name ="overview")
     private String overview;
+
+    @Json(name ="release_date")
+    @ColumnInfo(name ="release_date")
     private String releaseDate;
 
-    public MovieEntity(int movieId, int voteCount, boolean video, double voteAverage,
-                       String title, double popularity, String posterPath, String originalLanguage,
-                       String originalTitle, List<Integer> genreIds, String backdropPath,
-                       boolean adult, String overview, String releaseDate) {
+    @Json(name ="genre_ids")
+    @ColumnInfo(name ="genre_ids")
+    private List<Integer> genreIds;
 
+    @Json(name ="original_title")
+    @ColumnInfo(name ="original_title")
+    private String originalTitle;
 
-        this.movieId = movieId;
-        this.voteCount = voteCount;
-        this.video = video;
-        this.voteAverage = voteAverage;
-        this.title = title;
-        this.popularity = popularity;
+    @Json(name ="original_language")
+    @ColumnInfo(name ="original_language")
+    private String originalLanguage;
+
+    @Json(name ="title")
+    @ColumnInfo(name ="title")
+    private String title;
+
+    @Json(name ="backdrop_path")
+    @ColumnInfo(name ="backdrop_path")
+    private String backdropPath;
+
+    @Json(name ="popularity")
+    @ColumnInfo(name ="popularity")
+    private double popularity;
+
+    @Json(name ="vote_count")
+    @ColumnInfo(name ="vote_count")
+    private int voteCount;
+
+    @Json(name ="video")
+    @ColumnInfo(name ="video")
+    private boolean video;
+
+    @Json(name ="vote_average")
+    @ColumnInfo(name ="vote_average")
+    private double voteAverage;
+
+    public MovieEntity(String posterPath, boolean adult, String overview, String releaseDate,
+                       List<Integer> genreIds, int id, String originalTitle, String originalLanguage,
+                       String title, String backdropPath, double popularity, int voteCount, boolean video,
+                       double voteAverage) {
+
         this.posterPath = posterPath;
-        this.originalLanguage = originalLanguage;
-        this.originalTitle = originalTitle;
-        this.genreIds = genreIds;
-        this.backdropPath = backdropPath;
         this.adult = adult;
         this.overview = overview;
         this.releaseDate = releaseDate;
+        this.genreIds = genreIds;
+        this.id = id;
+        this.originalTitle = originalTitle;
+        this.originalLanguage = originalLanguage;
+        this.title = title;
+        this.backdropPath = backdropPath;
+        this.popularity = popularity;
+        this.voteCount = voteCount;
+        this.video = video;
+        this.voteAverage = voteAverage;
     }
 
-    public int getMovieId() {
-        return movieId;
+    private MovieEntity(Parcel in) {
+        posterPath = in.readString();
+        adult = in.readByte() != 0;
+        overview = in.readString();
+        releaseDate = in.readString();
+        genreIds = new ArrayList<>();
+        in.readList(genreIds, List.class.getClassLoader());
+        id = in.readInt();
+        originalTitle = in.readString();
+        originalLanguage = in.readString();
+        title = in.readString();
+        backdropPath = in.readString();
+        popularity = in.readDouble();
+        voteCount = in.readInt();
+        video = in.readByte() != 0;
+        voteAverage = in.readDouble();
     }
 
-    public int getVoteCount() {
-        return voteCount;
-    }
+    public static final Parcelable.Creator<MovieEntity> CREATOR = new Parcelable.Creator<MovieEntity>() {
+        @Override
+        public MovieEntity createFromParcel(Parcel in) {
+            return new MovieEntity(in);
+        }
 
-    public boolean getVideo() {
-        return video;
-    }
-
-    public double getVoteAverage() {
-        return voteAverage;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public double getPopularity() {
-        return popularity;
-    }
+        @Override
+        public MovieEntity[] newArray(int size) {
+            return new MovieEntity[size];
+        }
+    };
 
     public String getPosterPath() {
         return posterPath;
     }
 
-    public String getOriginalLanguage() {
-        return originalLanguage;
-    }
-
-    public String getOriginalTitle() {
-        return originalTitle;
-    }
-
-    public List<Integer> getGenreIds() {
-        return genreIds;
-    }
-
-    public String getBackdropPath() {
-        return backdropPath;
-    }
-
-    public boolean getAdult() {
+    public boolean isAdult() {
         return adult;
     }
 
@@ -102,5 +139,92 @@ public class MovieEntity {
 
     public String getReleaseDate() {
         return releaseDate;
+    }
+
+    public String getFormattedReleaseDate() {
+        return DisplayUtils.getDisplayReleaseDate(releaseDate);
+    }
+
+    public List<Integer> getGenreIds() {
+        return genreIds;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getOriginalTitle() {
+        return originalTitle;
+    }
+
+    public String getOriginalLanguage() {
+        return originalLanguage;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getBackdropPath() {
+        return backdropPath;
+    }
+
+    public double getPopularity() {
+        return popularity;
+    }
+
+    public int getVoteCount() {
+        return voteCount;
+    }
+
+    public boolean isVideo() {
+        return video;
+    }
+
+    public double getVoteAverage() {
+        return voteAverage;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(posterPath);
+        parcel.writeByte((byte) (adult ? 1 : 0));
+        parcel.writeString(overview);
+        parcel.writeString(releaseDate);
+        parcel.writeList(genreIds);
+        parcel.writeInt(id);
+        parcel.writeString(originalTitle);
+        parcel.writeString(originalLanguage);
+        parcel.writeString(title);
+        parcel.writeString(backdropPath);
+        parcel.writeDouble(popularity);
+        parcel.writeInt(voteCount);
+        parcel.writeByte((byte) (video ? 1 : 0));
+        parcel.writeDouble(voteAverage);
+    }
+
+    @Override
+    public String toString() {
+        return "MovieEntity{" +
+                "posterPath='" + posterPath + '\'' +
+                ", adult=" + adult +
+                ", overview='" + overview + '\'' +
+                ", releaseDate='" + releaseDate + '\'' +
+                ", genreIds=" + genreIds +
+                ", id=" + id +
+                ", originalTitle='" + originalTitle + '\'' +
+                ", originalLanguage='" + originalLanguage + '\'' +
+                ", title='" + title + '\'' +
+                ", backdropPath='" + backdropPath + '\'' +
+                ", popularity=" + popularity +
+                ", voteCount=" + voteCount +
+                ", video=" + video +
+                ", voteAverage=" + voteAverage +
+                '}';
     }
 }

@@ -4,10 +4,15 @@ package com.bfirestone.udacity.popularmovies.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.bfirestone.udacity.popularmovies.Utils.DisplayUtils;
 import com.squareup.moshi.Json;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class Movie implements Parcelable {
 
@@ -52,8 +57,6 @@ public class Movie implements Parcelable {
 
     @Json(name ="vote_average")
     private double voteAverage;
-
-    private List<String> genreNames;
 
     public Movie(String posterPath, boolean adult, String overview, String releaseDate,
                  List<Integer> genreIds, int id, String originalTitle, String originalLanguage,
@@ -119,7 +122,7 @@ public class Movie implements Parcelable {
     }
 
     public String getReleaseDate() {
-        return releaseDate;
+        return DisplayUtils.getDisplayReleaseDate(releaseDate);
     }
 
     public List<Integer> getGenreIds() {
@@ -162,10 +165,6 @@ public class Movie implements Parcelable {
         return voteAverage;
     }
 
-    public void setGenreNames(List<String> genreNames) {
-        this.genreNames = genreNames;
-    }
-
     @Override
     public int describeContents() {
         return 0;
@@ -191,7 +190,7 @@ public class Movie implements Parcelable {
 
     @Override
     public String toString() {
-        return "Movie{" +
+        return "MovieEntity{" +
                 "posterPath='" + posterPath + '\'' +
                 ", adult=" + adult +
                 ", overview='" + overview + '\'' +
