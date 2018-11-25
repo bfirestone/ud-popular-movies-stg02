@@ -27,11 +27,14 @@ public interface MovieDao {
     @Query("SELECT * FROM movies where id = :movieId")
     MovieEntity getMovieById(int movieId);
 
-    @Query("SELECT * FROM movies ORDER BY vote_average DESC")
-    LiveData<List<MovieEntity>> loadAllFavoriteMovies();
+    @Query("SELECT * FROM movies ORDER BY title ASC")
+    LiveData<List<MovieEntity>> loadAllFavoriteMoviesOrderByTitle();
 
-    @Query("SELECT * FROM movies ORDER BY title")
-    LiveData<List<MovieEntity>> loadAllFavoriteMoviesByTitle();
+    @Query("SELECT * FROM movies ORDER BY vote_average ASC")
+    LiveData<List<MovieEntity>> loadAllFavoriteMoviesOrderByRating();
+
+    @Query("SELECT * FROM movies ORDER BY popularity DESC")
+    LiveData<List<MovieEntity>> loadAllFavoriteMoviesOrderByPopularity();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertFavoriteMovie(MovieEntity movieEntity);

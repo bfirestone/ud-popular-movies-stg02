@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">The Movie App</string>
-    <string name="sort_most_popular">Most Popular</string>
-    <string name="sort_highest_rating">Highest Rating</string>
-    <string name="sort_display_faves">Favorites</string>
+    <string name="menu_most_popular">Most Popular</string>
+    <string name="menu_highest_rating">Highest Rating</string>
+    <string name="menu_display_faves">Favorites</string>
     <string name="movie_title">Movie Title</string>
     <string name="movie_release_date">release_date</string>
     <string name="movie_poster_image">moviePosterImage</string>

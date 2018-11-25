@@ -2,9 +2,11 @@ package com.bfirestone.udacity.popularmovies;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -23,6 +25,7 @@ import com.bfirestone.udacity.popularmovies.view.MainActivityViewModel;
 
 import java.util.List;
 
+import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import retrofit2.Call;
@@ -32,7 +35,8 @@ import retrofit2.Response;
 import static com.bfirestone.udacity.popularmovies.AppConstants.MOVIE_ENTITY_LIST;
 import static com.bfirestone.udacity.popularmovies.AppConstants.SAVED_SORT_TYPE;
 
-public class MainActivity extends AppCompatActivity implements MovieListAdapter.ItemClickListener {
+public class MainActivity extends AppCompatActivity implements MovieListAdapter.ItemClickListener,
+        SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     @BindView(R.id.rv_main)
@@ -42,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     private MovieSortType movieSortType;
     private MovieDatabaseApiService movieDatabaseApiService;
     private MovieListAdapter mMovieListAdapter;
+    private String faveSortBy;
     public GenreParcelableSparseArray genreParcelableSparseArray;
 
     @Override
@@ -49,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        setupSharedPreferences();
 
         apiKey = getResources().getString(R.string.TMDB_API_KEY);
 
@@ -69,6 +75,12 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
         getMovieListBySort(MovieSortType.MOST_POPULAR);
     }
 
+    private void setupSharedPreferences() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        loadFaveSortFromPreferences(sharedPreferences);
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+    }
+
     private void getMovieListBySort(MovieSortType movieSortType) {
         this.movieSortType = movieSortType;
 
@@ -82,8 +94,8 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
             String movieServiceUrl;
 
             if (movieSortType == MovieSortType.FAVORITES) {
-                setTitle(R.string.sort_display_faves);
-                viewModel.getFavedMovies().observe(this, favorites -> {
+                setTitle(R.string.menu_display_faves);
+                viewModel.getFavedMovies(faveSortBy).observe(this, favorites -> {
                     if (favorites != null) {
                         mMovieListAdapter.clear();
                         mMovieListAdapter.setMovieList(favorites);
@@ -96,12 +108,12 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
                 });
             } else {
                 if (movieSortType == MovieSortType.HIGHEST_RATING) {
-                    setTitle(R.string.sort_highest_rating);
+                    setTitle(R.string.menu_highest_rating);
                     movieServiceUrl = movieDatabaseApiService.getTopRatedMovies(apiKey)
                             .request().url().toString();
                     call = movieDatabaseApiService.getTopRatedMovies(apiKey);
                 } else {
-                    setTitle(R.string.sort_most_popular);
+                    setTitle(R.string.menu_most_popular);
                     movieServiceUrl = movieDatabaseApiService.getPopularMovies(apiKey)
                             .request().url().toString();
                     call = movieDatabaseApiService.getPopularMovies(apiKey);
@@ -137,6 +149,11 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
         } else {
             Log.i(LOG_TAG, "[network] not available");
         }
+    }
+
+    private void loadFaveSortFromPreferences(SharedPreferences sharedPreferences) {
+        faveSortBy = sharedPreferences.getString(getString(R.string.pref_fave_key),
+                getString(R.string.pref_fave_default_sort));
     }
 
     @Override
@@ -178,5 +195,12 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
         Log.i(LOG_TAG, "[SelectedMovie] " + clickedItemIndex);
         intent.putExtra("MovieEntity", mMovieListAdapter.getMovieEntityList().get(clickedItemIndex));
         startActivity(intent);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(getString(R.string.pref_fave_key))) {
+            faveSortBy = sharedPreferences.getString(key, getResources().getString(R.string.pref_fave_default_sort));
+        }
     }
 }

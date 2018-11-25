@@ -6,6 +6,7 @@ import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.bfirestone.udacity.popularmovies.R;
 import com.bfirestone.udacity.popularmovies.database.entity.MovieEntity;
 import com.bfirestone.udacity.popularmovies.database.repo.MovieRepository;
 
@@ -21,13 +22,13 @@ public class MainActivityViewModel extends AndroidViewModel {
         movieRepository = new MovieRepository(application);
     }
 
-    public LiveData<List<MovieEntity>> getFavedMovies() {
-        Log.d(TAG, "fetching faved movies from database via ViewModel");
-        return movieRepository.loadAllMovieFaves();
-    }
+    public LiveData<List<MovieEntity>> getFavedMovies(String orderByColumn) {
+        Log.d(TAG, "fetching faved movies from database via ViewModel sorted_by=" + orderByColumn);
 
-    public LiveData<List<MovieEntity>> getMoviesByPopularity() {
-        Log.d(TAG, "fetching popular movies via ViewModel");
-        return movieRepository.loadAllMovieFaves();
+        // pref_fave_rating_value
+//        switch (orderByColumn) {
+//            case R.string.menu_display_faves:
+//        }
+        return movieRepository.loadAllMovieFavesByTitle();
     }
 }

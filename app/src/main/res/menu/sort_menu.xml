@@ -2,21 +2,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/sort_highest_rating"
-        android:title="@string/sort_highest_rating"
+        android:title="@string/menu_highest_rating"
         android:orderInCategory="1"
         android:visible="true"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/sort_most_popular"
-        android:title="@string/sort_most_popular"
+        android:title="@string/menu_most_popular"
         android:visible="true"
         android:orderInCategory="2"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/sort_display_faves"
-        android:title="@string/sort_display_faves"
+        android:title="@string/menu_display_faves"
         android:visible="true"
         android:orderInCategory="3"
         app:showAsAction="never" />
