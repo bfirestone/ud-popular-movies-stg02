@@ -30,6 +30,9 @@ public interface MovieDao {
     @Query("SELECT * FROM movies ORDER BY vote_average DESC")
     LiveData<List<MovieEntity>> loadAllFavoriteMovies();
 
+    @Query("SELECT * FROM movies ORDER BY title")
+    LiveData<List<MovieEntity>> loadAllFavoriteMoviesByTitle();
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertFavoriteMovie(MovieEntity movieEntity);
 

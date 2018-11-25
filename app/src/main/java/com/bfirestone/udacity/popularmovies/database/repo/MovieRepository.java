@@ -2,8 +2,8 @@ package com.bfirestone.udacity.popularmovies.database.repo;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
-import android.util.Log;
 
+import com.bfirestone.udacity.popularmovies.R;
 import com.bfirestone.udacity.popularmovies.Utils.AppExecutors;
 import com.bfirestone.udacity.popularmovies.database.AppDatabase;
 import com.bfirestone.udacity.popularmovies.database.dao.MovieDao;
@@ -15,16 +15,26 @@ public class MovieRepository {
     private MovieDao movieDao;
     private AppExecutors appExecutors;
 
-    private LiveData<List<MovieEntity>> movies;
+    private LiveData<List<MovieEntity>> movieEntityList;
 
     public MovieRepository(Application application) {
         movieDao = AppDatabase.getInstance(application).movieDao();
-        movies = movieDao.loadAllFavoriteMovies();
         appExecutors = AppExecutors.getExecutorInstance();
     }
 
+    public MovieRepository(Application application, int sortOrder) {
+        //        movieEntityList = movieDao.loadAllFavoriteMovies();
+//        movieEntityList = movieDao.loadAllFavoriteMoviesByTitle();
+
+        switch (sortOrder) {
+            case R.string.sort_display_faves:
+                movieEntityList = movieDao.loadAllFavoriteMoviesByTitle();
+                break;
+        }
+    }
+
     public LiveData<List<MovieEntity>> loadAllMovieFaves() {
-        return movies;
+        return movieDao.loadAllFavoriteMoviesByTitle();
     }
 
     public boolean isFavorite(int movieId) {

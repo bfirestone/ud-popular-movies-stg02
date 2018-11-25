@@ -11,17 +11,27 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         // should this all be in a diff properties file?
-        def TMDB_API_KEY = System.getenv("TMDB_API_KEY")
+        def USER_LANGUAGE = System.getenv("USER_LANGUAGE")
+        def TMDB_API_KEY = getProjectProperty('tmdb.api.key')
+        def TMDB_BASE_API_URL = getProjectProperty('tmdb.api.base_url')
+        def TMDB_BASE_IMG_URL = getProjectProperty('tmdb.img.base_url')
+        def YOUTUBE_BASE_VIDEO_URL = getProjectProperty('youtube.video.base_url')
+        def YOUTUBE_BASE_IMAGE_URL = getProjectProperty('youtube.img.base_url')
+        def YOUTUBE_IMAGE_EXTENSION = getProjectProperty('youtube.img.extention')
 
-        if (TMDB_API_KEY == null) {
-            Properties properties = new Properties()
-            properties.load(project.rootProject.file('local.properties').newDataInputStream())
-            TMDB_API_KEY = properties.getProperty('tmdb.api.key')
+        if (USER_LANGUAGE == null) {
+            USER_LANGUAGE = getProjectProperty('user.lang.default')
         }
 
         resValue('string', 'TMDB_API_KEY', "${TMDB_API_KEY}")
-        resValue('string', 'TMDB_BASE_API_URL', 'https://api.themoviedb.org/3/')
-        resValue('string', 'TMDB_BASE_IMG_URL', 'https://image.tmdb.org/t/p/w500')
+        resValue('string', 'TMDB_BASE_API_URL', "${TMDB_BASE_API_URL}")
+        resValue('string', 'TMDB_BASE_IMG_URL', "${TMDB_BASE_IMG_URL}")
+        resValue('string', 'USER_LANGUAGE', "${USER_LANGUAGE}")
+        resValue('string', 'YOUTUBE_BASE_VIDEO_URL', "${YOUTUBE_BASE_VIDEO_URL}")
+        resValue('string', 'YOUTUBE_BASE_IMAGE_URL', "${YOUTUBE_BASE_IMAGE_URL}")
+        resValue('string', 'YOUTUBE_IMAGE_EXTENSION', "${YOUTUBE_IMAGE_EXTENSION}")
+
+
     }
     buildTypes {
         release {
@@ -33,6 +43,13 @@ android {
         sourceCompatibility = '1.8'
         targetCompatibility = '1.8'
     }
+}
+
+String getProjectProperty(String propertyName) {
+    if (hasProperty(propertyName)) {
+        return this.properties[propertyName]
+    }
+    return null
 }
 
 dependencies {
@@ -55,6 +72,7 @@ dependencies {
     // Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
     implementation 'com.squareup.retrofit2:converter-moshi:2.4.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava:2.4.0'
     implementation 'com.squareup.moshi:moshi:1.8.0'
 
     // ButterKnife
@@ -86,6 +104,10 @@ dependencies {
 
     // picasso
     implementation 'com.squareup.picasso:picasso:2.71828'
+
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    implementation 'org.apache.commons:commons-lang3:3.8.1'
+
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'

@@ -5,9 +5,13 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import com.bfirestone.udacity.popularmovies.Utils.DisplayUtils;
 import com.squareup.moshi.Json;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -208,23 +212,23 @@ public class MovieEntity implements Parcelable {
         parcel.writeDouble(voteAverage);
     }
 
+    @NonNull
     @Override
     public String toString() {
-        return "MovieEntity{" +
-                "posterPath='" + posterPath + '\'' +
-                ", adult=" + adult +
-                ", overview='" + overview + '\'' +
-                ", releaseDate='" + releaseDate + '\'' +
-                ", genreIds=" + genreIds +
-                ", id=" + id +
-                ", originalTitle='" + originalTitle + '\'' +
-                ", originalLanguage='" + originalLanguage + '\'' +
-                ", title='" + title + '\'' +
-                ", backdropPath='" + backdropPath + '\'' +
-                ", popularity=" + popularity +
-                ", voteCount=" + voteCount +
-                ", video=" + video +
-                ", voteAverage=" + voteAverage +
-                '}';
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
+                .append("title", title)
+                .append("posterPath", posterPath)
+                .append("adult", adult)
+                .append("overview", overview)
+                .append("releaseDate", releaseDate)
+                .append("genreIds", genreIds)
+                .append("backdropPath", backdropPath)
+                .append("id", id)
+                .append("originalLanguage", originalLanguage)
+                .append("originalTitle", originalTitle)
+                .append("popularity", popularity)
+                .append("video", video)
+                .append("voteAverage", voteAverage)
+                .append("voteCount", voteCount).toString();
     }
 }

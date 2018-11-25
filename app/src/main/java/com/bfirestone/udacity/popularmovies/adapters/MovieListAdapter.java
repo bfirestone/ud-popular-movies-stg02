@@ -14,12 +14,13 @@ import com.bfirestone.udacity.popularmovies.database.entity.MovieEntity;
 import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
-    private static final String LOG_TAG = MovieAdapter.class.getSimpleName();
+public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.MovieViewHolder> {
+    private static final String LOG_TAG = MovieListAdapter.class.getSimpleName();
 
-    private List<MovieEntity> movieEntityList;
+    private ArrayList<MovieEntity> movieEntityList = new ArrayList<>();
     private Context context;
     final private ItemClickListener mItemClickListener;
 
@@ -27,7 +28,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         void onMovieItemClick(int clickedItemIndex);
     }
 
-    public MovieAdapter(Context context, ItemClickListener listener) {
+    public MovieListAdapter(Context context, ItemClickListener listener) {
         this.context = context;
         this.mItemClickListener = listener;
     }
@@ -36,7 +37,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     @Override
     public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(
-                parent.getContext()).inflate(R.layout.movie_list_grid,
+                parent.getContext()).inflate(R.layout.layout_movie_list,
                 parent, false);
 
         return new MovieViewHolder(view);
@@ -55,7 +56,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         return movieEntityList.size();
     }
 
-    public List<MovieEntity> getMovieEntityList() {
+    public ArrayList<MovieEntity> getMovieEntityList() {
         return movieEntityList;
     }
 
@@ -67,7 +68,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     }
 
     public void setMovieList(List<MovieEntity> movieEntityList) {
-        this.movieEntityList = movieEntityList;
+        this.movieEntityList.addAll(movieEntityList);
         notifyDataSetChanged();
     }
 
@@ -82,11 +83,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
             itemView.setOnClickListener(this);
         }
 
-        void bindMovie(MovieEntity movie) {
+        void bindMovie(MovieEntity movieEntity) {
             String moviePosterUrl = context.getResources().getString(R.string.TMDB_BASE_IMG_URL)
-                    + movie.getPosterPath();
+                    + movieEntity.getPosterPath();
 
-            Log.i(LOG_TAG, "fetching poster from: " + moviePosterUrl);
+            Log.i(LOG_TAG, "fetching poster for move=[" + movieEntity.getTitle()
+                    + "] from=" + moviePosterUrl);
 
             Picasso.Builder builder = new Picasso.Builder(context);
 
@@ -96,13 +98,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
                     .error(R.drawable.ic_launcher_background)
                     .into(coverImage);
 
-            // TODO: Why doesn't glide display properly?
 //            GlideApp.with(context)
 //                    .load(moviePosterUrl)
-//                    .placeholder((R.drawable.gradient_background))
-//                    .error(R.drawable.ic_launcher_background)
 //                    .skipMemoryCache(true)
 //                    .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+//                    .placeholder((R.drawable.gradient_background))
+//                    .error(R.drawable.ic_launcher_background)
 //                    .into(coverImage);
         }
 

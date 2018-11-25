@@ -8,7 +8,6 @@ import android.content.Context;
 import android.util.Log;
 
 import com.bfirestone.udacity.popularmovies.database.converter.Converter;
-import com.bfirestone.udacity.popularmovies.database.dao.GenreDao;
 import com.bfirestone.udacity.popularmovies.database.dao.MovieDao;
 import com.bfirestone.udacity.popularmovies.database.entity.FaveMovieEntity;
 import com.bfirestone.udacity.popularmovies.database.entity.GenreEntity;
@@ -40,5 +39,4 @@ public abstract class AppDatabase extends RoomDatabase {
     }
 
     public abstract MovieDao movieDao();
-    public abstract GenreDao genreDao();
 }

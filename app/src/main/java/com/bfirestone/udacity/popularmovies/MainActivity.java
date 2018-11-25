@@ -14,12 +14,11 @@ import android.widget.Toast;
 
 import com.bfirestone.udacity.popularmovies.Utils.MovieApiClient;
 import com.bfirestone.udacity.popularmovies.Utils.NetworkConnectionDetector;
-import com.bfirestone.udacity.popularmovies.adapters.MovieAdapter;
-import com.bfirestone.udacity.popularmovies.database.AppDatabase;
+import com.bfirestone.udacity.popularmovies.adapters.MovieListAdapter;
+import com.bfirestone.udacity.popularmovies.api.models.GenreParcelableSparseArray;
+import com.bfirestone.udacity.popularmovies.api.models.MovieListResponse;
 import com.bfirestone.udacity.popularmovies.database.entity.MovieEntity;
-import com.bfirestone.udacity.popularmovies.models.GenreParcelableSparseArray;
-import com.bfirestone.udacity.popularmovies.models.MovieListResponse;
-import com.bfirestone.udacity.popularmovies.service.MovieDatabaseService;
+import com.bfirestone.udacity.popularmovies.service.MovieDatabaseApiService;
 import com.bfirestone.udacity.popularmovies.view.MainActivityViewModel;
 
 import java.util.List;
@@ -30,21 +29,20 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.bfirestone.udacity.popularmovies.AppConstants.MOVIE_ENTITY_LIST;
 import static com.bfirestone.udacity.popularmovies.AppConstants.SAVED_SORT_TYPE;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.ItemClickListener {
+public class MainActivity extends AppCompatActivity implements MovieListAdapter.ItemClickListener {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     @BindView(R.id.rv_main)
     RecyclerView mRecyclerView;
 
-    private MainActivityViewModel viewModel;
     private static String apiKey;
     private MovieSortType movieSortType;
-    private MovieDatabaseService movieDatabaseService;
-    private MovieAdapter mAdapter;
+    private MovieDatabaseApiService movieDatabaseApiService;
+    private MovieListAdapter mMovieListAdapter;
     public GenreParcelableSparseArray genreParcelableSparseArray;
-    private AppDatabase mAppDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,19 +53,18 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
         apiKey = getResources().getString(R.string.TMDB_API_KEY);
 
         // Initialize the adapter and attach it to the RecyclerView
-        mAdapter = new MovieAdapter(this, this);
+        mMovieListAdapter = new MovieListAdapter(this, this);
 
         // Setup recycler view
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setAdapter(mMovieListAdapter);
 
-        mAppDatabase = AppDatabase.getInstance(getApplicationContext());
         genreParcelableSparseArray = new GenreParcelableSparseArray();
 
-        movieDatabaseService = new MovieApiClient()
+        movieDatabaseApiService = new MovieApiClient()
                 .getRetrofitClient(getResources().getString(R.string.TMDB_BASE_API_URL))
-                .create(MovieDatabaseService.class);
+                .create(MovieDatabaseApiService.class);
 
         getMovieListBySort(MovieSortType.MOST_POPULAR);
     }
@@ -77,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
 
         NetworkConnectionDetector detector = new NetworkConnectionDetector();
 
-        viewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
+        MainActivityViewModel viewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
 
         if (detector.isNetworkAvailable(this)) {
 
@@ -85,13 +82,13 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
             String movieServiceUrl;
 
             if (movieSortType == MovieSortType.FAVORITES) {
-                setTitle(R.string.display_faves);
+                setTitle(R.string.sort_display_faves);
                 viewModel.getFavedMovies().observe(this, favorites -> {
                     if (favorites != null) {
-                        mAdapter.clear();
-                        mAdapter.setMovieList(favorites);
+                        mMovieListAdapter.clear();
+                        mMovieListAdapter.setMovieList(favorites);
 
-                        if (mAdapter.getMovieEntityList().size() == 0) {
+                        if (mMovieListAdapter.getMovieEntityList().size() == 0) {
                             Toast.makeText(getApplicationContext(), R.string.FavesNotFound,
                                     Toast.LENGTH_SHORT).show();
                         }
@@ -100,14 +97,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
             } else {
                 if (movieSortType == MovieSortType.HIGHEST_RATING) {
                     setTitle(R.string.sort_highest_rating);
-                    movieServiceUrl = movieDatabaseService.getTopRatedMovies(apiKey)
+                    movieServiceUrl = movieDatabaseApiService.getTopRatedMovies(apiKey)
                             .request().url().toString();
-                    call = movieDatabaseService.getTopRatedMovies(apiKey);
+                    call = movieDatabaseApiService.getTopRatedMovies(apiKey);
                 } else {
                     setTitle(R.string.sort_most_popular);
-                    movieServiceUrl = movieDatabaseService.getPopularMovies(apiKey)
+                    movieServiceUrl = movieDatabaseApiService.getPopularMovies(apiKey)
                             .request().url().toString();
-                    call = movieDatabaseService.getPopularMovies(apiKey);
+                    call = movieDatabaseApiService.getPopularMovies(apiKey);
                 }
 
                 Log.i(LOG_TAG, "movie db api: " + movieServiceUrl);
@@ -120,8 +117,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
                         if (response.isSuccessful() && response.body() != null) {
                             List<MovieEntity> movieDetails = response.body().getResults();
                             Log.i(LOG_TAG, "[movie_details] " + movieDetails);
-                            mAdapter.clear();
-                            mAdapter.setMovieList(movieDetails);
+                            mMovieListAdapter.clear();
+                            mMovieListAdapter.setMovieList(movieDetails);
                             Log.d(LOG_TAG, "[top_rated_movies] num fetched=" + movieDetails.size());
                         }
                     }
@@ -144,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
+        getMenuInflater().inflate(R.menu.sort_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -157,8 +154,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
             getMovieListBySort(MovieSortType.HIGHEST_RATING);
         } else if (id == R.id.sort_most_popular) {
             getMovieListBySort(MovieSortType.MOST_POPULAR);
-        } else if (id == R.id.display_faves) {
+        } else if (id == R.id.sort_display_faves) {
             getMovieListBySort(MovieSortType.FAVORITES);
+        } else if (id == R.id.action_settings) {
+            Intent startSettingsActivity = new Intent(this, SettingsActivity.class);
+            startActivity(startSettingsActivity);
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -166,8 +167,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        MovieSortType.valueOf("asd");
-        outState.putBoolean(SAVED_SORT_TYPE, MovieSortType.valueOf(movieSortType));
+        outState.putInt(SAVED_SORT_TYPE, movieSortType.getValue());
+        outState.putParcelableArrayList(MOVIE_ENTITY_LIST, mMovieListAdapter.getMovieEntityList());
         super.onSaveInstanceState(outState);
     }
 
@@ -175,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
     public void onMovieItemClick(int clickedItemIndex) {
         Intent intent = new Intent(MainActivity.this, DetailsActivity.class);
         Log.i(LOG_TAG, "[SelectedMovie] " + clickedItemIndex);
-        intent.putExtra("MovieEntity", mAdapter.getMovieEntityList().get(clickedItemIndex));
+        intent.putExtra("MovieEntity", mMovieListAdapter.getMovieEntityList().get(clickedItemIndex));
         startActivity(intent);
     }
 }

@@ -1,10 +1,16 @@
-package com.bfirestone.udacity.popularmovies.models;
+package com.bfirestone.udacity.popularmovies.api.models;
+
+import android.support.annotation.NonNull;
 
 import com.bfirestone.udacity.popularmovies.database.entity.MovieEntity;
 import com.squareup.moshi.Json;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class MovieListResponse {
 
     @Json(name ="page")
@@ -43,14 +49,14 @@ public class MovieListResponse {
         return totalPages;
     }
 
+    @NonNull
     @Override
     public String toString() {
-        return "MovieListResponse{" +
-                "page=" + page +
-                ", results=" + results +
-                ", totalResults=" + totalResults +
-                ", totalPages=" + totalPages +
-                '}';
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
+                .append("page", page)
+                .append("results", results)
+                .append("totalResults", totalResults)
+                .append("totalPages", totalPages).toString();
     }
 }
 
