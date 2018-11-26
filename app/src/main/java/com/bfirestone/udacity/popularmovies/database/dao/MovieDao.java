@@ -30,7 +30,7 @@ public interface MovieDao {
     @Query("SELECT * FROM movies ORDER BY title ASC")
     LiveData<List<MovieEntity>> loadAllFavoriteMoviesOrderByTitle();
 
-    @Query("SELECT * FROM movies ORDER BY vote_average ASC")
+    @Query("SELECT * FROM movies ORDER BY vote_average DESC")
     LiveData<List<MovieEntity>> loadAllFavoriteMoviesOrderByRating();
 
     @Query("SELECT * FROM movies ORDER BY popularity DESC")

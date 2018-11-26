@@ -42,7 +42,9 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     @BindView(R.id.rv_main)
     RecyclerView mRecyclerView;
 
-    private static String apiKey;
+    @BindString(R.string.TMDB_API_KEY)
+    String apiKey;
+
     private MovieSortType movieSortType;
     private MovieDatabaseApiService movieDatabaseApiService;
     private MovieListAdapter mMovieListAdapter;
@@ -55,8 +57,6 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setupSharedPreferences();
-
-        apiKey = getResources().getString(R.string.TMDB_API_KEY);
 
         // Initialize the adapter and attach it to the RecyclerView
         mMovieListAdapter = new MovieListAdapter(this, this);
@@ -91,7 +91,6 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
         if (detector.isNetworkAvailable(this)) {
 
             Call<MovieListResponse> call;
-            String movieServiceUrl;
 
             if (movieSortType == MovieSortType.FAVORITES) {
                 setTitle(R.string.menu_display_faves);
@@ -109,17 +108,13 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
             } else {
                 if (movieSortType == MovieSortType.HIGHEST_RATING) {
                     setTitle(R.string.menu_highest_rating);
-                    movieServiceUrl = movieDatabaseApiService.getTopRatedMovies(apiKey)
-                            .request().url().toString();
-                    call = movieDatabaseApiService.getTopRatedMovies(apiKey);
+                    call = movieDatabaseApiService.getTopRatedMovies(apiKey, 1);
                 } else {
                     setTitle(R.string.menu_most_popular);
-                    movieServiceUrl = movieDatabaseApiService.getPopularMovies(apiKey)
-                            .request().url().toString();
-                    call = movieDatabaseApiService.getPopularMovies(apiKey);
+                    call = movieDatabaseApiService.getPopularMovies(apiKey, 1);
                 }
 
-                Log.i(LOG_TAG, "movie db api: " + movieServiceUrl);
+                Log.i(LOG_TAG, "movie db api: " + call.request().url());
 
                 call.enqueue(new Callback<MovieListResponse>() {
                     @Override

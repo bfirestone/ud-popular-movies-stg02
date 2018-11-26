@@ -253,6 +253,7 @@ public class DetailsActivity extends AppCompatActivity {
         Call<MovieDetailsResponse> call = movieDatabaseApiService.getMovieDetails(
                 selectedMovie.getId(), apiKey, "videos,reviews,credits");
 
+        Log.i(LOG_TAG, "full movie fetch url: " + call.request().url());
         call.enqueue(new Callback<MovieDetailsResponse>() {
             @Override
             public void onResponse(@NonNull Call<MovieDetailsResponse> call,

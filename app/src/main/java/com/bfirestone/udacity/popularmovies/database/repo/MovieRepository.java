@@ -23,6 +23,14 @@ public class MovieRepository {
         return movieDao.loadAllFavoriteMoviesOrderByTitle();
     }
 
+    public LiveData<List<MovieEntity>> loadAllMovieFavesByPopularity() {
+        return movieDao.loadAllFavoriteMoviesOrderByPopularity();
+    }
+
+    public LiveData<List<MovieEntity>> loadAllMovieFavesByRating() {
+        return movieDao.loadAllFavoriteMoviesOrderByRating();
+    }
+
     public boolean isFavorite(int movieId) {
         MovieEntity movieEntity = movieDao.getMovieById(movieId);
         return movieEntity != null;

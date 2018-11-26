@@ -11,10 +11,12 @@ import retrofit2.http.Query;
 
 public interface MovieDatabaseApiService {
     @GET("movie/top_rated")
-    Call<MovieListResponse> getTopRatedMovies(@Query("api_key") String apiKey);
+    Call<MovieListResponse> getTopRatedMovies(@Query("api_key") String apiKey,
+                                              @Query("page") int page);
 
     @GET("movie/popular")
-    Call<MovieListResponse> getPopularMovies(@Query("api_key") String apiKey);
+    Call<MovieListResponse> getPopularMovies(@Query("api_key") String apiKey,
+                                             @Query("page") int page);
 
     @GET("genre/movie/list")
     Call<GenreListResponse> getGenreList(@Query("api_key") String apiKey);
@@ -22,7 +24,7 @@ public interface MovieDatabaseApiService {
 
     @GET("movie/{id}")
     Call<MovieDetailsResponse> getMovieDetails(@Path("id") int id,
-                                                     @Query("api_key") String apiKey,
-                                                     @Query("append_to_response") String appendToResponse);
+                                               @Query("api_key") String apiKey,
+                                               @Query("append_to_response") String appendToResponse);
 
 }
