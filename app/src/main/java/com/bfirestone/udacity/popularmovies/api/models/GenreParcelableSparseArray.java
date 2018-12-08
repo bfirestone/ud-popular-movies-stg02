@@ -1,10 +1,10 @@
-package com.bfirestone.udacity.popularmovies.models;
+package com.bfirestone.udacity.popularmovies.api.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.SparseArray;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "unused"})
 public class GenreParcelableSparseArray implements Parcelable {
     private SparseArray<String> genres = new SparseArray<>();
 

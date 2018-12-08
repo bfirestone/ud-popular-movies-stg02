@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="pref_fave_sort_labels">
+        <item>@string/pref_fave_title_label</item>
+        <item>@string/pref_fave_rating_label</item>
+        <item>@string/pref_fave_popularity_label</item>
+    </array>
+
+    <array name="pref_fave_sort_values">
+        <item>@string/pref_fave_title_value</item>
+        <item>@string/pref_fave_rating_value</item>
+        <item>@string/pref_fave_popularity_value</item>
+    </array>
+
+    <string-array name="pref_sort_by_labels">
+        <item>@string/menu_most_popular</item>
+        <item>@string/menu_highest_rating</item>
+        <item>@string/menu_display_faves</item>
+    </string-array>
+
+    <string name="pref_fave_title_label">Title</string>
+    <string name="pref_fave_rating_label">Rating</string>
+    <string name="pref_fave_popularity_label">Popularity</string>
+    <string name="pref_fave_title_value">title</string>
+    <string name="pref_fave_rating_value">rating</string>
+    <string name="pref_fave_popularity_value">popularity</string>
+</resources>

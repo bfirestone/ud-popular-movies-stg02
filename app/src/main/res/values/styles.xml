@@ -8,9 +8,9 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="BodySmall">
+    <style name="TextViewBodySmall">
         <item name="android:textSize">15sp</item>
-        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textColor">@color/colorPrimaryText</item>
     </style>
 
 </resources>
