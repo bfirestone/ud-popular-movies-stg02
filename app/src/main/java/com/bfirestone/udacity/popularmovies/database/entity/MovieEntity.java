@@ -1,64 +1,87 @@
-package com.bfirestone.udacity.popularmovies.models;
+package com.bfirestone.udacity.popularmovies.database.entity;
 
-
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
+import com.bfirestone.udacity.popularmovies.Utils.DisplayUtils;
 import com.squareup.moshi.Json;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Movie implements Parcelable {
+import static com.bfirestone.udacity.popularmovies.AppConstants.DB_TABLE_MOVIES;
+
+@Entity(tableName = DB_TABLE_MOVIES)
+public class MovieEntity implements Parcelable {
+
+    @Json(name ="id")
+    @ColumnInfo(name ="id")
+    @PrimaryKey
+    private int id;
 
     @Json(name = "poster_path")
+    @ColumnInfo(name = "poster_path")
     private String posterPath;
 
     @Json(name ="adult")
+    @ColumnInfo(name ="adult")
     private boolean adult;
 
     @Json(name ="overview")
+    @ColumnInfo(name ="overview")
     private String overview;
 
     @Json(name ="release_date")
+    @ColumnInfo(name ="release_date")
     private String releaseDate;
 
     @Json(name ="genre_ids")
+    @ColumnInfo(name ="genre_ids")
     private List<Integer> genreIds;
 
-    @Json(name ="id")
-    private int id;
-
     @Json(name ="original_title")
+    @ColumnInfo(name ="original_title")
     private String originalTitle;
 
     @Json(name ="original_language")
+    @ColumnInfo(name ="original_language")
     private String originalLanguage;
 
     @Json(name ="title")
+    @ColumnInfo(name ="title")
     private String title;
 
     @Json(name ="backdrop_path")
+    @ColumnInfo(name ="backdrop_path")
     private String backdropPath;
 
     @Json(name ="popularity")
+    @ColumnInfo(name ="popularity")
     private double popularity;
 
     @Json(name ="vote_count")
+    @ColumnInfo(name ="vote_count")
     private int voteCount;
 
     @Json(name ="video")
+    @ColumnInfo(name ="video")
     private boolean video;
 
     @Json(name ="vote_average")
+    @ColumnInfo(name ="vote_average")
     private double voteAverage;
 
-    private List<String> genreNames;
-
-    public Movie(String posterPath, boolean adult, String overview, String releaseDate,
-                 List<Integer> genreIds, int id, String originalTitle, String originalLanguage,
-                 String title, String backdropPath, double popularity, int voteCount, boolean video,
-                 double voteAverage) {
+    public MovieEntity(String posterPath, boolean adult, String overview, String releaseDate,
+                       List<Integer> genreIds, int id, String originalTitle, String originalLanguage,
+                       String title, String backdropPath, double popularity, int voteCount, boolean video,
+                       double voteAverage) {
 
         this.posterPath = posterPath;
         this.adult = adult;
@@ -76,7 +99,7 @@ public class Movie implements Parcelable {
         this.voteAverage = voteAverage;
     }
 
-    private Movie(Parcel in) {
+    private MovieEntity(Parcel in) {
         posterPath = in.readString();
         adult = in.readByte() != 0;
         overview = in.readString();
@@ -94,15 +117,15 @@ public class Movie implements Parcelable {
         voteAverage = in.readDouble();
     }
 
-    public static final Creator<Movie> CREATOR = new Creator<Movie>() {
+    public static final Parcelable.Creator<MovieEntity> CREATOR = new Parcelable.Creator<MovieEntity>() {
         @Override
-        public Movie createFromParcel(Parcel in) {
-            return new Movie(in);
+        public MovieEntity createFromParcel(Parcel in) {
+            return new MovieEntity(in);
         }
 
         @Override
-        public Movie[] newArray(int size) {
-            return new Movie[size];
+        public MovieEntity[] newArray(int size) {
+            return new MovieEntity[size];
         }
     };
 
@@ -120,6 +143,10 @@ public class Movie implements Parcelable {
 
     public String getReleaseDate() {
         return releaseDate;
+    }
+
+    public String getFormattedReleaseDate() {
+        return DisplayUtils.getDisplayReleaseDate(releaseDate);
     }
 
     public List<Integer> getGenreIds() {
@@ -162,10 +189,6 @@ public class Movie implements Parcelable {
         return voteAverage;
     }
 
-    public void setGenreNames(List<String> genreNames) {
-        this.genreNames = genreNames;
-    }
-
     @Override
     public int describeContents() {
         return 0;
@@ -189,24 +212,23 @@ public class Movie implements Parcelable {
         parcel.writeDouble(voteAverage);
     }
 
+    @NonNull
     @Override
     public String toString() {
-        return "Movie{" +
-                "posterPath='" + posterPath + '\'' +
-                ", adult=" + adult +
-                ", overview='" + overview + '\'' +
-                ", releaseDate='" + releaseDate + '\'' +
-                ", genreIds=" + genreIds +
-                ", id=" + id +
-                ", originalTitle='" + originalTitle + '\'' +
-                ", originalLanguage='" + originalLanguage + '\'' +
-                ", title='" + title + '\'' +
-                ", backdropPath='" + backdropPath + '\'' +
-                ", popularity=" + popularity +
-                ", voteCount=" + voteCount +
-                ", video=" + video +
-                ", voteAverage=" + voteAverage +
-                '}';
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
+                .append("title", title)
+                .append("posterPath", posterPath)
+                .append("adult", adult)
+                .append("overview", overview)
+                .append("releaseDate", releaseDate)
+                .append("genreIds", genreIds)
+                .append("backdropPath", backdropPath)
+                .append("id", id)
+                .append("originalLanguage", originalLanguage)
+                .append("originalTitle", originalTitle)
+                .append("popularity", popularity)
+                .append("video", video)
+                .append("voteAverage", voteAverage)
+                .append("voteCount", voteCount).toString();
     }
 }
-

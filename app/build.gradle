@@ -11,17 +11,27 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         // should this all be in a diff properties file?
-        def TMDB_API_KEY = System.getenv("TMDB_API_KEY")
+        def USER_LANGUAGE = System.getenv("USER_LANGUAGE")
+        def TMDB_API_KEY = getProjectProperty('tmdb.api.key')
+        def TMDB_BASE_API_URL = getProjectProperty('tmdb.api.base_url')
+        def TMDB_BASE_IMG_URL = getProjectProperty('tmdb.img.base_url')
+        def YOUTUBE_BASE_VIDEO_URL = getProjectProperty('youtube.video.base_url')
+        def YOUTUBE_BASE_IMAGE_URL = getProjectProperty('youtube.img.base_url')
+        def YOUTUBE_IMAGE_EXTENSION = getProjectProperty('youtube.img.extention')
 
-        if (TMDB_API_KEY == null) {
-            Properties properties = new Properties()
-            properties.load(project.rootProject.file('local.properties').newDataInputStream())
-            TMDB_API_KEY = properties.getProperty('tmdb.api.key')
+        if (USER_LANGUAGE == null) {
+            USER_LANGUAGE = getProjectProperty('user.lang.default')
         }
 
         resValue('string', 'TMDB_API_KEY', "${TMDB_API_KEY}")
-        resValue('string', 'TMDB_BASE_API_URL', 'https://api.themoviedb.org/3/')
-        resValue('string', 'TMDB_BASE_IMG_URL', 'https://image.tmdb.org/t/p/w500')
+        resValue('string', 'TMDB_BASE_API_URL', "${TMDB_BASE_API_URL}")
+        resValue('string', 'TMDB_BASE_IMG_URL', "${TMDB_BASE_IMG_URL}")
+        resValue('string', 'USER_LANGUAGE', "${USER_LANGUAGE}")
+        resValue('string', 'YOUTUBE_BASE_VIDEO_URL', "${YOUTUBE_BASE_VIDEO_URL}")
+        resValue('string', 'YOUTUBE_BASE_IMAGE_URL', "${YOUTUBE_BASE_IMAGE_URL}")
+        resValue('string', 'YOUTUBE_IMAGE_EXTENSION', "${YOUTUBE_IMAGE_EXTENSION}")
+
+
     }
     buildTypes {
         release {
@@ -35,34 +45,71 @@ android {
     }
 }
 
+String getProjectProperty(String propertyName) {
+    if (hasProperty(propertyName)) {
+        return this.properties[propertyName]
+    }
+    return null
+}
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support:exifinterface:28.0.0'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     implementation 'com.android.support:support-v4:28.0.0'
+    implementation 'com.android.support:preference-v14:28.0.0'
     implementation 'com.android.support:support-vector-drawable:28.0.0'
     implementation 'com.android.support:recyclerview-v7:28.0.0'
     implementation 'com.android.support:gridlayout-v7:28.0.0'
     implementation 'com.android.support:cardview-v7:28.0.0'
 
-    //FAB dependencies
+    // Design
     implementation 'com.android.support:design:28.0.0'
 
-    implementation "android.arch.persistence.room:runtime:1.1.1"
-    annotationProcessor "android.arch.persistence.room:compiler:1.1.1"
+    // Constrain Layout
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
 
-    implementation 'com.squareup.moshi:moshi:1.7.0'
+    // Retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
     implementation 'com.squareup.retrofit2:converter-moshi:2.4.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava:2.4.0'
+    implementation 'com.squareup.moshi:moshi:1.8.0'
+
+    // ButterKnife
+    implementation 'com.jakewharton:butterknife:8.8.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+
+    // Dagger
+    implementation 'com.google.dagger:dagger-android:2.15'
+    implementation 'com.google.dagger:dagger-android-support:2.15'
+    annotationProcessor 'com.google.dagger:dagger-android-processor:2.15'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.15'
+
+    // Android Architecture Components
+    implementation 'android.arch.lifecycle:runtime:1.1.1'
+    implementation 'android.arch.lifecycle:extensions:1.1.1'
+    annotationProcessor 'android.arch.lifecycle:compiler:1.1.1'
+
+    // Glide
+    implementation 'com.github.bumptech.glide:glide:4.8.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.8.0'
+
+    // Room
+    implementation 'android.arch.persistence.room:runtime:1.1.1'
+    annotationProcessor 'android.arch.persistence.room:compiler:1.1.1'
+
+    // okhttp
     implementation 'com.squareup.okhttp:okhttp:2.7.2'
     implementation 'com.squareup.okhttp:okhttp-urlconnection:2.2.0'
+
+    // picasso
     implementation 'com.squareup.picasso:picasso:2.71828'
-    implementation 'com.android.support:preference-v14:28.0.0'
+
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    implementation 'org.apache.commons:commons-lang3:3.8.1'
+
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test:rules:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    androidTestImplementation 'com.android.support:support-annotations:28.0.0'
-
 }
