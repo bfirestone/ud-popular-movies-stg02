@@ -3,7 +3,6 @@ package com.bfirestone.udacity.popularmovies.database.repo;
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
 
-import com.bfirestone.udacity.popularmovies.Utils.AppExecutors;
 import com.bfirestone.udacity.popularmovies.database.AppDatabase;
 import com.bfirestone.udacity.popularmovies.database.dao.MovieDao;
 import com.bfirestone.udacity.popularmovies.database.entity.MovieEntity;
@@ -12,11 +11,9 @@ import java.util.List;
 
 public class MovieRepository {
     private MovieDao movieDao;
-    private AppExecutors appExecutors;
 
     public MovieRepository(Application application) {
         movieDao = AppDatabase.getInstance(application).movieDao();
-        appExecutors = AppExecutors.getExecutorInstance();
     }
 
     public LiveData<List<MovieEntity>> loadAllMovieFavesByTitle() {
@@ -37,10 +34,10 @@ public class MovieRepository {
     }
 
     public void addMovieFave(MovieEntity movieEntity) {
-        appExecutors.getDiskIO().execute(() -> movieDao.insertFavoriteMovie(movieEntity));
+        movieDao.addMovieFave(movieEntity);
     }
 
     public void deleteMovieFave(MovieEntity movieEntity) {
-        appExecutors.getDiskIO().execute(() -> movieDao.deleteFavoriteMovie(movieEntity));
+        movieDao.deleteMovieFave(movieEntity);
     }
 }

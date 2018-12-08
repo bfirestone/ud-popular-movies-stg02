@@ -1,21 +1,19 @@
 package com.bfirestone.udacity.popularmovies.database.entity;
 
 import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.PrimaryKey;
+
+import java.util.List;
 
 import static com.bfirestone.udacity.popularmovies.AppConstants.DB_TABLE_FAVES;
 
 @Entity(tableName = DB_TABLE_FAVES)
-public class FaveMovieEntity {
+public class FaveMovieEntity extends MovieEntity {
 
-    @PrimaryKey
-    private int movieId;
+    public FaveMovieEntity(String posterPath, boolean adult, String overview, String releaseDate,
+                           List<Integer> genreIds, int id, String originalTitle, String originalLanguage,
+                           String title, String backdropPath, double popularity, int voteCount, boolean video,
+                           double voteAverage) {
 
-    public FaveMovieEntity(int movieId) {
-        this.movieId = movieId;
-    }
-
-    public int getMovieId() {
-        return movieId;
+        super(posterPath, adult, overview, releaseDate, genreIds, id, originalTitle, originalLanguage, title, backdropPath, popularity, voteCount, video, voteAverage);
     }
 }

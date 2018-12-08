@@ -1,4 +1,4 @@
-package com.bfirestone.udacity.popularmovies.Utils;
+package com.bfirestone.udacity.popularmovies.api;
 
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;

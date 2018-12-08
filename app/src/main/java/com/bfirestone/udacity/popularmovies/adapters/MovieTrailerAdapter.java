@@ -57,7 +57,7 @@ public class MovieTrailerAdapter extends RecyclerView.Adapter<MovieTrailerAdapte
 
         Uri trailerThumbUri = uriBuilder.build();
 
-        Log.i(LOG_TAG, "trailer_url: " + trailerThumbUri);
+        Log.v(LOG_TAG, "trailer_url: " + trailerThumbUri);
 
         if (trailer.getSite().equalsIgnoreCase("youtube")) {
             holder.trailerTitle.setText(trailer.getName());
@@ -98,14 +98,14 @@ public class MovieTrailerAdapter extends RecyclerView.Adapter<MovieTrailerAdapte
         @Override
         public void onClick(View view) {
             Trailer trailer = trailers.get(getAdapterPosition());
-            Log.i(LOG_TAG, "playing trailer: " + trailer);
+            Log.d(LOG_TAG, "playing trailer: " + trailer);
 
             if (trailer != null) {
                 Uri.Builder uriBuilder = Uri.parse(YoutubeBaseVideoUrl).buildUpon();
                 uriBuilder.appendQueryParameter("v", trailer.getKey());
                 Uri trailerUri = uriBuilder.build();
 
-                Log.i(LOG_TAG, "trailer_uri: " + trailerUri);
+                Log.v(LOG_TAG, "trailer_uri: " + trailerUri);
 
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(trailerUri);

@@ -18,15 +18,15 @@ public class DetailsActivityViewModel extends AndroidViewModel {
         movieRepository = new MovieRepository(application);
     }
 
-    public boolean isFavorite(int movieId) {
+    public boolean isFave(int movieId) {
         return movieRepository.isFavorite(movieId);
     }
 
-    public void addMovieFave(MovieEntity movieEntity) {
+    public void addFave(MovieEntity movieEntity) {
         movieRepository.addMovieFave(movieEntity);
     }
 
-    public void removeMovieFave(MovieEntity movieEntity) {
+    public void removeFave(MovieEntity movieEntity) {
         movieRepository.deleteMovieFave(movieEntity);
     }
 }

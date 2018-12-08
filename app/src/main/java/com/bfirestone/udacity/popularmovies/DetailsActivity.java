@@ -15,10 +15,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bfirestone.udacity.popularmovies.Utils.AppExecutors;
-import com.bfirestone.udacity.popularmovies.Utils.MovieApiClient;
 import com.bfirestone.udacity.popularmovies.adapters.MovieCastAdapter;
 import com.bfirestone.udacity.popularmovies.adapters.MovieReviewsAdapter;
 import com.bfirestone.udacity.popularmovies.adapters.MovieTrailerAdapter;
+import com.bfirestone.udacity.popularmovies.api.MovieApiClient;
 import com.bfirestone.udacity.popularmovies.api.models.Cast;
 import com.bfirestone.udacity.popularmovies.api.models.Genre;
 import com.bfirestone.udacity.popularmovies.api.models.MovieDetailsResponse;
@@ -26,7 +26,7 @@ import com.bfirestone.udacity.popularmovies.api.models.Review;
 import com.bfirestone.udacity.popularmovies.api.models.Trailer;
 import com.bfirestone.udacity.popularmovies.database.entity.MovieEntity;
 import com.bfirestone.udacity.popularmovies.glide.GlideApp;
-import com.bfirestone.udacity.popularmovies.service.MovieDatabaseApiService;
+import com.bfirestone.udacity.popularmovies.service.TheMovieDatabaseApiService;
 import com.bfirestone.udacity.popularmovies.view.DetailsActivityViewModel;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
@@ -45,7 +45,8 @@ import retrofit2.Response;
 public class DetailsActivity extends AppCompatActivity {
     private static final String LOG_TAG = DetailsActivity.class.getSimpleName();
 
-    public static final String EXTRA_MOVIE_ENTITY = "MovieEntity";
+    @BindString(R.string.extra_name_entity)
+    String EXTRA_MOVIE_ENTITY;
 
     @BindView(R.id.iv_movie_poster_details)
     ImageView moviePoster;
@@ -113,13 +114,15 @@ public class DetailsActivity extends AppCompatActivity {
     @BindString(R.string.TMDB_API_KEY)
     String apiKey;
 
-    private DetailsActivityViewModel viewModel;
+    private DetailsActivityViewModel detailsActivityViewModel;
     private MovieEntity selectedMovie;
     private MovieDetailsResponse fullMovieDetails;
-    private MovieDatabaseApiService movieDatabaseApiService;
+    private TheMovieDatabaseApiService movieDatabaseApiService;
     private MovieTrailerAdapter mMovieTrailerAdapter;
     private MovieCastAdapter mMovieCastAdapter;
     private MovieReviewsAdapter mMovieReviewsAdapter;
+    private boolean isMovieFaved;
+    private AppExecutors appExecutors;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,17 +130,26 @@ public class DetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_details);
         ButterKnife.bind(this);
 
+        // Setup Adapters
+        mMovieTrailerAdapter = new MovieTrailerAdapter(this);
+        mMovieCastAdapter = new MovieCastAdapter(this);
+        mMovieReviewsAdapter = new MovieReviewsAdapter(this);
+
+        // Setup Executor (threading)
+        appExecutors = AppExecutors.getExecutorInstance();
+
         Intent intent = getIntent();
         selectedMovie = intent.getParcelableExtra(EXTRA_MOVIE_ENTITY);
-        Log.i(LOG_TAG, "ParcelableExtra: " + selectedMovie.toString());
+        Log.v(LOG_TAG, "ParcelableExtra: " + selectedMovie.toString());
 
         movieDatabaseApiService = new MovieApiClient()
                 .getRetrofitClient(getResources().getString(R.string.TMDB_BASE_API_URL))
-                .create(MovieDatabaseApiService.class);
+                .create(TheMovieDatabaseApiService.class);
 
-        viewModel = ViewModelProviders.of(this).get(DetailsActivityViewModel.class);
+        detailsActivityViewModel = ViewModelProviders.of(this)
+                .get(DetailsActivityViewModel.class);
 
-        faveButton.setOnClickListener(v -> onFaveButtonClicked());
+        setupFaveButton();
 
         movieTitle.setText(selectedMovie.getTitle());
         movieLanguage.setText(selectedMovie.getOriginalLanguage());
@@ -145,16 +157,6 @@ public class DetailsActivity extends AppCompatActivity {
         movieReleaseDate.setText(selectedMovie.getFormattedReleaseDate());
         movieVoteAverage.setText(new StringBuilder().append(selectedMovie.getVoteAverage()));
         moviePopularity.setText(new StringBuilder().append(selectedMovie.getPopularity()));
-
-        AppExecutors.getExecutorInstance().getDiskIO().execute(() -> {
-            boolean isFavorite = viewModel.isFavorite(selectedMovie.getId());
-            Log.i(LOG_TAG, "movie: " + selectedMovie.getTitle() + " faved=" + isFavorite);
-            if (isFavorite) {
-                runOnUiThread(() -> faveButton.setImageDrawable(favedButtonDrawable));
-            } else {
-                runOnUiThread(() -> faveButton.setImageDrawable(unFavedButtonDrawable));
-            }
-        });
 
         GlideApp.with(this)
                 .load(movieDbBaseImageUrl + selectedMovie.getBackdropPath())
@@ -173,6 +175,20 @@ public class DetailsActivity extends AppCompatActivity {
                 .into(movieCover);
 
         fetchFullMovieDetails();
+    }
+
+    private void setupFaveButton() {
+        AppExecutors.getExecutorInstance().getDiskIO().execute(() -> {
+            isMovieFaved = detailsActivityViewModel.isFave(selectedMovie.getId());
+            Log.d(LOG_TAG, "movie: " + selectedMovie.getTitle() + " faved=" + isMovieFaved);
+            if (isMovieFaved) {
+                runOnUiThread(() -> faveButton.setImageDrawable(favedButtonDrawable));
+            } else {
+                runOnUiThread(() -> faveButton.setImageDrawable(unFavedButtonDrawable));
+            }
+        });
+
+        faveButton.setOnClickListener(v -> onFavoriteClick());
     }
 
     private void generateGenreNames() {
@@ -195,7 +211,6 @@ public class DetailsActivity extends AppCompatActivity {
     private void generateMovieCast() {
         List<Cast> cast =  fullMovieDetails.getCredits().getCast();
 
-        mMovieCastAdapter = new MovieCastAdapter(this);
         rvCast.setLayoutManager(new LinearLayoutManager(this,
                 LinearLayoutManager.HORIZONTAL, false));
         rvCast.setAdapter(mMovieCastAdapter);
@@ -213,7 +228,6 @@ public class DetailsActivity extends AppCompatActivity {
     private void generateMovieReviews() {
         List<Review> reviews =  fullMovieDetails.getReviewList().getReviews();
 
-        mMovieReviewsAdapter = new MovieReviewsAdapter(this);
         rvReviews.setLayoutManager(new LinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false));
         rvReviews.setAdapter(mMovieReviewsAdapter);
@@ -222,8 +236,11 @@ public class DetailsActivity extends AppCompatActivity {
             rvReviews.setVisibility(View.VISIBLE);
             reviewsNotAvailable.setVisibility(View.GONE);
             mMovieReviewsAdapter.setReviews(reviews);
-            Log.d(LOG_TAG, "[generateMovieReviews] setting up recycler view & visibility :: "
-                    + rvReviews.getAdapter().getItemCount());
+
+            if (rvReviews.getAdapter() != null) {
+                Log.d(LOG_TAG, "[generateMovieReviews] setting up recycler view & visibility :: "
+                        + rvReviews.getAdapter().getItemCount());
+            }
         } else {
             rvReviews.setVisibility(View.GONE);
             reviewsNotAvailable.setVisibility(View.VISIBLE);
@@ -233,7 +250,6 @@ public class DetailsActivity extends AppCompatActivity {
     private void generateMovieTrailers() {
         List<Trailer> trailers = fullMovieDetails.getTrailerList().getTrailers();
 
-        mMovieTrailerAdapter = new MovieTrailerAdapter(this);
         rvTrailer.setLayoutManager(new LinearLayoutManager(this,
                 LinearLayoutManager.HORIZONTAL, false));
         rvTrailer.setAdapter(mMovieTrailerAdapter);
@@ -253,7 +269,7 @@ public class DetailsActivity extends AppCompatActivity {
         Call<MovieDetailsResponse> call = movieDatabaseApiService.getMovieDetails(
                 selectedMovie.getId(), apiKey, "videos,reviews,credits");
 
-        Log.i(LOG_TAG, "full movie fetch url: " + call.request().url());
+        Log.v(LOG_TAG, "full movie fetch url: " + call.request().url());
         call.enqueue(new Callback<MovieDetailsResponse>() {
             @Override
             public void onResponse(@NonNull Call<MovieDetailsResponse> call,
@@ -261,7 +277,7 @@ public class DetailsActivity extends AppCompatActivity {
 
                 if (response.isSuccessful() && response.body() != null) {
                     fullMovieDetails = response.body();
-                    Log.d(LOG_TAG, "total_review="
+                    Log.v(LOG_TAG, "total_review="
                             + fullMovieDetails.getReviewList().getReviews().size()
                             + " total_trailers=" + fullMovieDetails.getTrailerList().getTrailers().size()
                             + " total_cast=" + fullMovieDetails.getCredits().getCast().size());
@@ -284,25 +300,28 @@ public class DetailsActivity extends AppCompatActivity {
         });
     }
 
-    private void onFaveButtonClicked() {
-        AppExecutors.getExecutorInstance().getDiskIO().execute(() -> {
-            boolean isFavorite = viewModel.isFavorite(selectedMovie.getId());
-            Log.d(LOG_TAG, "movie_fave: " + selectedMovie.getId()
-                    + " fave_current=" + isFavorite);
+    private void onFavoriteClick() {
+        String faveString = (isMovieFaved) ? "fave_removed" : "fave_added";
+        Log.v(LOG_TAG, String.format("movie_id=%d movie_title=%s fave_status=%s",
+                selectedMovie.getId(), selectedMovie.getTitle(), faveString));
 
-            if (isFavorite) {
-                viewModel.removeMovieFave(selectedMovie);
-                runOnUiThread(() -> {
-                    faveButton.setImageDrawable(unFavedButtonDrawable);
-                    Toast.makeText(this, faveRemovedText, Toast.LENGTH_SHORT).show();
-                });
-            } else {
-                viewModel.addMovieFave(selectedMovie);
-                runOnUiThread(() -> {
-                    faveButton.setImageDrawable(favedButtonDrawable);
-                    Toast.makeText(this, faveAddedText, Toast.LENGTH_SHORT).show();
-                });
-            }
-        });
+        if (isMovieFaved) {
+            appExecutors.getDiskIO().execute(() -> detailsActivityViewModel
+                    .removeFave(selectedMovie));
+
+            runOnUiThread(() -> {
+                faveButton.setImageDrawable(unFavedButtonDrawable);
+                Toast.makeText(this, faveRemovedText, Toast.LENGTH_SHORT).show();
+            });
+            isMovieFaved = false;
+        } else {
+            appExecutors.getDiskIO().execute(() -> detailsActivityViewModel
+                    .addFave(selectedMovie));
+            runOnUiThread(() -> {
+                faveButton.setImageDrawable(favedButtonDrawable);
+                Toast.makeText(this, faveAddedText, Toast.LENGTH_SHORT).show();
+            });
+            isMovieFaved = true;
+        }
     }
 }

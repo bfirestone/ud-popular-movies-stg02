@@ -3,8 +3,6 @@ package com.bfirestone.udacity.popularmovies.view;
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -25,7 +23,7 @@ public class MainActivityViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<MovieEntity>> getFavedMovies(String orderByColumn) {
-        Log.d(LOG_TAG, "fetching faved movies from database via ViewModel sorted_by=" + orderByColumn);
+        Log.d(LOG_TAG, "method=getFavedMovies() fetching faved movies from database via ViewModel sorted_by=" + orderByColumn);
 
         String sortByRating = getApplication().getResources().getString(
                 R.string.pref_fave_rating_value);

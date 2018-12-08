@@ -22,7 +22,7 @@ public interface MovieDao {
     LiveData<List<MovieEntity>> loadMovies();
 
     @Query("DELETE FROM movies")
-    void deleteMovies();
+    void deleteAllMovies();
 
     @Query("SELECT * FROM movies where id = :movieId")
     MovieEntity getMovieById(int movieId);
@@ -36,9 +36,11 @@ public interface MovieDao {
     @Query("SELECT * FROM movies ORDER BY popularity DESC")
     LiveData<List<MovieEntity>> loadAllFavoriteMoviesOrderByPopularity();
 
+//    @Query("UPDATE movies SET popularity = :")
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertFavoriteMovie(MovieEntity movieEntity);
+    void addMovieFave(MovieEntity movieEntity);
 
     @Delete
-    void deleteFavoriteMovie(MovieEntity movieEntity);
+    void deleteMovieFave(MovieEntity movieEntity);
 }

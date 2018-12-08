@@ -78,7 +78,7 @@ public class MovieCastAdapter extends RecyclerView.Adapter<MovieCastAdapter.Cred
             Uri.Builder uriBuilder = Uri.parse(movieDbBaseImageUrl).buildUpon();
             uriBuilder.appendEncodedPath(cast.getProfilePath());
             Uri castThumbUri = uriBuilder.build();
-            Log.i(LOG_TAG, "cast_url: " + castThumbUri);
+            Log.d(LOG_TAG, "cast_url: " + castThumbUri);
 
             GlideApp.with(context)
                     .load(castThumbUri)
