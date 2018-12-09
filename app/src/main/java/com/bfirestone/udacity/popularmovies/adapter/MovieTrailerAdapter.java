@@ -1,4 +1,4 @@
-package com.bfirestone.udacity.popularmovies.adapters;
+package com.bfirestone.udacity.popularmovies.adapter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bfirestone.udacity.popularmovies.R;
-import com.bfirestone.udacity.popularmovies.api.models.Trailer;
+import com.bfirestone.udacity.popularmovies.api.model.Trailer;
 import com.bfirestone.udacity.popularmovies.glide.GlideApp;
 
 import java.util.List;

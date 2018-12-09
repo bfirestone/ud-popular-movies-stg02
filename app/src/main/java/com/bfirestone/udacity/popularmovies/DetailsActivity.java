@@ -15,15 +15,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bfirestone.udacity.popularmovies.Utils.AppExecutors;
-import com.bfirestone.udacity.popularmovies.adapters.MovieCastAdapter;
-import com.bfirestone.udacity.popularmovies.adapters.MovieReviewsAdapter;
-import com.bfirestone.udacity.popularmovies.adapters.MovieTrailerAdapter;
+import com.bfirestone.udacity.popularmovies.adapter.MovieCastAdapter;
+import com.bfirestone.udacity.popularmovies.adapter.MovieReviewsAdapter;
+import com.bfirestone.udacity.popularmovies.adapter.MovieTrailerAdapter;
 import com.bfirestone.udacity.popularmovies.api.MovieApiClient;
-import com.bfirestone.udacity.popularmovies.api.models.Cast;
-import com.bfirestone.udacity.popularmovies.api.models.Genre;
-import com.bfirestone.udacity.popularmovies.api.models.MovieDetailsResponse;
-import com.bfirestone.udacity.popularmovies.api.models.Review;
-import com.bfirestone.udacity.popularmovies.api.models.Trailer;
+import com.bfirestone.udacity.popularmovies.api.model.Cast;
+import com.bfirestone.udacity.popularmovies.api.model.Genre;
+import com.bfirestone.udacity.popularmovies.api.model.MovieDetailsResponse;
+import com.bfirestone.udacity.popularmovies.api.model.Review;
+import com.bfirestone.udacity.popularmovies.api.model.Trailer;
 import com.bfirestone.udacity.popularmovies.database.entity.MovieEntity;
 import com.bfirestone.udacity.popularmovies.glide.GlideApp;
 import com.bfirestone.udacity.popularmovies.service.TheMovieDatabaseApiService;
@@ -37,6 +37,8 @@ import butterknife.BindDrawable;
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import okhttp3.Cache;
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -142,8 +144,16 @@ public class DetailsActivity extends AppCompatActivity {
         selectedMovie = intent.getParcelableExtra(EXTRA_MOVIE_ENTITY);
         Log.v(LOG_TAG, "ParcelableExtra: " + selectedMovie.toString());
 
+        // setup retrofit cache
+        int cacheSize = 40 * 1024 * 1024; // 40 MB
+        Cache cache = new Cache(getCacheDir(), cacheSize);
+
         movieDatabaseApiService = new MovieApiClient()
-                .getRetrofitClient(getResources().getString(R.string.TMDB_BASE_API_URL))
+                .getRetrofitClient(
+                        getResources().getString(R.string.TMDB_BASE_API_URL),
+                        new OkHttpClient.Builder()
+                                .cache(cache)
+                                .build())
                 .create(TheMovieDatabaseApiService.class);
 
         detailsActivityViewModel = ViewModelProviders.of(this)
@@ -163,7 +173,7 @@ public class DetailsActivity extends AppCompatActivity {
                 .placeholder(R.drawable.gradient_background)
                 .error(R.drawable.ic_launcher_background)
                 .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(moviePoster);
 
         GlideApp.with(this)
@@ -171,7 +181,7 @@ public class DetailsActivity extends AppCompatActivity {
                 .placeholder(R.drawable.gradient_background)
                 .error(R.drawable.ic_launcher_background)
                 .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(movieCover);
 
         fetchFullMovieDetails();

@@ -1,4 +1,4 @@
-package com.bfirestone.udacity.popularmovies.adapters;
+package com.bfirestone.udacity.popularmovies.adapter;
 
 import android.support.v7.util.DiffUtil;
 

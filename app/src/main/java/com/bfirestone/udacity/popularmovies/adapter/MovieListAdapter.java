@@ -1,4 +1,4 @@
-package com.bfirestone.udacity.popularmovies.adapters;
+package com.bfirestone.udacity.popularmovies.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -13,13 +13,16 @@ import android.widget.ImageView;
 
 import com.bfirestone.udacity.popularmovies.R;
 import com.bfirestone.udacity.popularmovies.database.entity.MovieEntity;
-import com.squareup.picasso.OkHttp3Downloader;
-import com.squareup.picasso.Picasso;
+import com.bfirestone.udacity.popularmovies.glide.GlideApp;
+import com.bfirestone.udacity.popularmovies.listener.ItemClickListener;
+import com.bumptech.glide.load.DecodeFormat;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 
 import java.util.ArrayList;
 import java.util.List;
 
-//public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.MovieViewHolder> {
 public class MovieListAdapter extends ListAdapter<MovieEntity, MovieListAdapter.MovieViewHolder> {
     private static final String LOG_TAG = MovieListAdapter.class.getSimpleName();
 
@@ -94,12 +97,11 @@ public class MovieListAdapter extends ListAdapter<MovieEntity, MovieListAdapter.
     }
 
     class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        Context mContext;
         ImageView coverImage;
 
         MovieViewHolder(View itemView) {
             super(itemView);
-            mContext = itemView.getContext();
+
             coverImage = itemView.findViewById(R.id.iv_movie_poster_image);
             itemView.setOnClickListener(this);
         }
@@ -108,25 +110,20 @@ public class MovieListAdapter extends ListAdapter<MovieEntity, MovieListAdapter.
             String moviePosterUrl = context.getResources().getString(R.string.TMDB_BASE_IMG_URL)
                     + movieEntity.getPosterPath();
 
-            Log.d(LOG_TAG, "method=bindMovie() fetching poster for move=[" + movieEntity.getTitle()
-                    + "] from=" + moviePosterUrl);
+            Log.d(LOG_TAG, String.format("method=bindMovie() fetching poster for move=[%s] from=%s",
+                    movieEntity.getTitle(), moviePosterUrl));
 
-            Picasso.Builder builder = new Picasso.Builder(context);
-
-            builder.downloader(new OkHttp3Downloader(context));
-            builder.build().load(moviePosterUrl)
-                    .placeholder((R.drawable.gradient_background))
+            GlideApp.with(context)
+                    .load(moviePosterUrl)
+                    .apply(new RequestOptions()
+                            .fitCenter()
+                            .format(DecodeFormat.PREFER_ARGB_8888)
+                            .override(Target.SIZE_ORIGINAL))
+                    .placeholder(R.drawable.gradient_background)
                     .error(R.drawable.ic_launcher_background)
+                    .skipMemoryCache(true)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(coverImage);
-
-            // TODO: get glide to work here
-//            GlideApp.with(context)
-//                    .load(moviePosterUrl)
-//                    .skipMemoryCache(true)
-//                    .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-//                    .placeholder((R.drawable.gradient_background))
-//                    .error(R.drawable.ic_launcher_background)
-//                    .into(coverImage);
         }
 
         @Override
