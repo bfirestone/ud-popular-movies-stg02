@@ -137,6 +137,21 @@ public class DetailsActivity extends AppCompatActivity {
         mMovieCastAdapter = new MovieCastAdapter(this);
         mMovieReviewsAdapter = new MovieReviewsAdapter(this);
 
+        // setup cast recycler view
+        rvCast.setLayoutManager(new LinearLayoutManager(this,
+                LinearLayoutManager.HORIZONTAL, false));
+        rvCast.setAdapter(mMovieCastAdapter);
+
+        // setup trailer recycler view
+        rvTrailer.setLayoutManager(new LinearLayoutManager(this,
+                LinearLayoutManager.HORIZONTAL, false));
+        rvTrailer.setAdapter(mMovieTrailerAdapter);
+
+        // setup reviews recycler view
+        rvReviews.setLayoutManager(new LinearLayoutManager(this,
+                LinearLayoutManager.VERTICAL, false));
+        rvReviews.setAdapter(mMovieReviewsAdapter);
+
         // Setup Executor (threading)
         appExecutors = AppExecutors.getExecutorInstance();
 
@@ -221,10 +236,6 @@ public class DetailsActivity extends AppCompatActivity {
     private void generateMovieCast() {
         List<Cast> cast =  fullMovieDetails.getCredits().getCast();
 
-        rvCast.setLayoutManager(new LinearLayoutManager(this,
-                LinearLayoutManager.HORIZONTAL, false));
-        rvCast.setAdapter(mMovieCastAdapter);
-
         if (cast != null && cast.size() > 0) {
             rvCast.setVisibility(View.VISIBLE);
             castNotAvailable.setVisibility(View.GONE);
@@ -237,10 +248,6 @@ public class DetailsActivity extends AppCompatActivity {
 
     private void generateMovieReviews() {
         List<Review> reviews =  fullMovieDetails.getReviewList().getReviews();
-
-        rvReviews.setLayoutManager(new LinearLayoutManager(this,
-                LinearLayoutManager.VERTICAL, false));
-        rvReviews.setAdapter(mMovieReviewsAdapter);
 
         if (reviews != null && reviews.size() > 0) {
             rvReviews.setVisibility(View.VISIBLE);
@@ -259,10 +266,6 @@ public class DetailsActivity extends AppCompatActivity {
 
     private void generateMovieTrailers() {
         List<Trailer> trailers = fullMovieDetails.getTrailerList().getTrailers();
-
-        rvTrailer.setLayoutManager(new LinearLayoutManager(this,
-                LinearLayoutManager.HORIZONTAL, false));
-        rvTrailer.setAdapter(mMovieTrailerAdapter);
 
         if (trailers != null && trailers.size() > 0) {
             rvTrailer.setVisibility(View.VISIBLE);

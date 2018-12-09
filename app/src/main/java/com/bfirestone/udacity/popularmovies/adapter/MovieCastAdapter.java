@@ -33,6 +33,7 @@ public class MovieCastAdapter extends RecyclerView.Adapter<MovieCastAdapter.Cred
 
     public void setCast(List<Cast> castList) {
         this.castList = castList;
+        notifyDataSetChanged();
     }
 
     @NonNull
