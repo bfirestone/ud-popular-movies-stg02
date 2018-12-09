@@ -36,6 +36,7 @@ public class MovieTrailerAdapter extends RecyclerView.Adapter<MovieTrailerAdapte
 
     public void setTrailers(List<Trailer> trailers) {
         this.trailers = trailers;
+        notifyDataSetChanged();
     }
 
     @NonNull

@@ -13,8 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("unused")
-public class Credits implements Parcelable
-{
+public class Credits implements Parcelable {
 
     @Json(name = "cast")
     private List<Cast> cast = new ArrayList<>();
@@ -22,10 +21,7 @@ public class Credits implements Parcelable
     private List<Crew> crew = new ArrayList<>();
     public final static Creator<Credits> CREATOR = new Creator<Credits>() {
 
-
-        @SuppressWarnings({
-            "unchecked"
-        })
+        @SuppressWarnings({"unchecked"})
         public Credits createFromParcel(Parcel in) {
             return new Credits(in);
         }
@@ -34,8 +30,7 @@ public class Credits implements Parcelable
             return (new Credits[size]);
         }
 
-    }
-    ;
+    };
 
     private Credits(Parcel in) {
         in.readList(this.cast, (Cast.class.getClassLoader()));
@@ -85,7 +80,7 @@ public class Credits implements Parcelable
     }
 
     public int describeContents() {
-        return  0;
+        return 0;
     }
 
 }

@@ -20,7 +20,7 @@ import com.bfirestone.udacity.popularmovies.Utils.NetworkConnectionDetector;
 import com.bfirestone.udacity.popularmovies.listener.ItemClickListener;
 import com.bfirestone.udacity.popularmovies.adapter.MovieListAdapter;
 import com.bfirestone.udacity.popularmovies.api.MovieApiClient;
-import com.bfirestone.udacity.popularmovies.api.model.MovieListResponse;
+import com.bfirestone.udacity.popularmovies.api.model.response.MovieListResponse;
 import com.bfirestone.udacity.popularmovies.database.entity.MovieEntity;
 import com.bfirestone.udacity.popularmovies.service.TheMovieDatabaseApiService;
 import com.bfirestone.udacity.popularmovies.view.MainActivityViewModel;

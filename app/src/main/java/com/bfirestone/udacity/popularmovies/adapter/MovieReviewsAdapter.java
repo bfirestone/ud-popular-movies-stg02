@@ -35,6 +35,7 @@ public class MovieReviewsAdapter extends RecyclerView.Adapter<MovieReviewsAdapte
 
     public void setReviews(List<Review> reviews) {
         this.reviews = reviews;
+        notifyDataSetChanged();
     }
 
     @NonNull
