@@ -12,6 +12,7 @@ public class DisplayUtils {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
     private static final String LOG_TAG = DisplayUtils.class.getSimpleName();
 
+    private DisplayUtils() {}
 
     public static String getDisplayReleaseDate(String releaseDate) {
         if (TextUtils.isEmpty(releaseDate)) return "";

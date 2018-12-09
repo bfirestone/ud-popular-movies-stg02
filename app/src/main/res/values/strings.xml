@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">The Movie App</string>
+    <string name="moviedb_api_sort_popularity">popular</string>
+    <string name="moviedb_api_sort_rating">top_rated</string>
     <string name="menu_most_popular">Most Popular</string>
     <string name="menu_highest_rating">Highest Rating</string>
     <string name="menu_display_faves">Favorites</string>

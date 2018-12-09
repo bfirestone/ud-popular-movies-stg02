@@ -10,7 +10,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,15 +17,14 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.bfirestone.udacity.popularmovies.Utils.NetworkConnectionDetector;
-import com.bfirestone.udacity.popularmovies.listener.ItemClickListener;
 import com.bfirestone.udacity.popularmovies.adapter.MovieListAdapter;
 import com.bfirestone.udacity.popularmovies.api.MovieApiClient;
 import com.bfirestone.udacity.popularmovies.api.model.MovieListResponse;
 import com.bfirestone.udacity.popularmovies.database.entity.MovieEntity;
+import com.bfirestone.udacity.popularmovies.listener.ItemClickListener;
 import com.bfirestone.udacity.popularmovies.service.TheMovieDatabaseApiService;
 import com.bfirestone.udacity.popularmovies.view.MainActivityViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindBool;
@@ -76,6 +74,12 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
 
     @BindString(R.string.TMDB_BASE_API_URL)
     String TMDB_BASE_API_URL;
+
+    @BindString(R.string.moviedb_api_sort_popularity)
+    String TMDB_API_SORT_POPULARITY;
+
+    @BindString(R.string.moviedb_api_sort_rating)
+    String TMDB_API_SORT_RATING;
 
     @BindBool(R.bool.is_landscape)
     boolean isOrientationLandscape;
@@ -152,15 +156,17 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
         });
 
         if (detector.isNetworkAvailable(this)) {
-
-            Call<MovieListResponse> call;
+            String apiSortString;
 
             if (movieSortType != MovieSortType.FAVORITES) {
                 if (movieSortType == MovieSortType.HIGHEST_RATING) {
-                    call = movieDatabaseApiService.getTopRatedMovies(TMDB_API_KEY, 1);
+                    apiSortString = TMDB_API_SORT_RATING;
                 } else {
-                    call = movieDatabaseApiService.getPopularMovies(TMDB_API_KEY, 1);
+                    apiSortString = TMDB_API_SORT_POPULARITY;
                 }
+
+                Call<MovieListResponse> call = movieDatabaseApiService.getMoviesBySortOrder(
+                        apiSortString, TMDB_API_KEY, 1);
 
                 Log.v(LOG_TAG, "movie db api: " + call.request().url());
 
