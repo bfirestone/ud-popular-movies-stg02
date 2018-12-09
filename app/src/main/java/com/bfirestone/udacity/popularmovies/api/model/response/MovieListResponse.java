@@ -1,4 +1,4 @@
-package com.bfirestone.udacity.popularmovies.api.model;
+package com.bfirestone.udacity.popularmovies.api.model.response;
 
 import android.support.annotation.NonNull;
 

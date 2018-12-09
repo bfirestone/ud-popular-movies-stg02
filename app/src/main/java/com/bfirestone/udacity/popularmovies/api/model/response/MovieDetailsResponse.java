@@ -1,16 +1,21 @@
 
-package com.bfirestone.udacity.popularmovies.api.model;
-
-import java.util.List;
+package com.bfirestone.udacity.popularmovies.api.model.response;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
+import com.bfirestone.udacity.popularmovies.api.model.Genre;
+import com.bfirestone.udacity.popularmovies.api.model.MovieCollection;
+import com.bfirestone.udacity.popularmovies.api.model.ProductionCompany;
+import com.bfirestone.udacity.popularmovies.api.model.ProductionCountry;
+import com.bfirestone.udacity.popularmovies.api.model.SpokenLanguage;
 import com.squareup.moshi.Json;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+
+import java.util.List;
 
 @SuppressWarnings("unused")
 public class MovieDetailsResponse implements Parcelable {
@@ -65,18 +70,10 @@ public class MovieDetailsResponse implements Parcelable {
     private float voteAverage;
     @Json(name = "vote_count")
     private int voteCount;
-    @Json(name = "videos")
-    private TrailerList trailerList;
-    @Json(name = "reviews")
-    private ReviewList reviews;
-    @Json(name = "credits")
-    private Credits credits;
 
     public final static Parcelable.Creator<MovieDetailsResponse> CREATOR = new Creator<MovieDetailsResponse>() {
 
-        @SuppressWarnings({
-                "unchecked"
-        })
+        @SuppressWarnings({"unchecked"})
         public MovieDetailsResponse createFromParcel(Parcel in) {
             return new MovieDetailsResponse(in);
         }
@@ -113,9 +110,6 @@ public class MovieDetailsResponse implements Parcelable {
         this.video = ((boolean) in.readValue((boolean.class.getClassLoader())));
         this.voteAverage = ((float) in.readValue((float.class.getClassLoader())));
         this.voteCount = ((int) in.readValue((int.class.getClassLoader())));
-        this.trailerList = ((TrailerList) in.readValue((TrailerList.class.getClassLoader())));
-        this.reviews = ((ReviewList) in.readValue((ReviewList.class.getClassLoader())));
-        this.credits = ((Credits) in.readValue((Credits.class.getClassLoader())));
     }
 
     public MovieDetailsResponse() {
@@ -446,45 +440,6 @@ public class MovieDetailsResponse implements Parcelable {
         return this;
     }
 
-    public TrailerList getTrailerList() {
-        return trailerList;
-    }
-
-    public void setTrailerList(TrailerList trailerList) {
-        this.trailerList = trailerList;
-    }
-
-    public MovieDetailsResponse withVideos(TrailerList videos) {
-        this.trailerList = videos;
-        return this;
-    }
-
-    public ReviewList getReviewList() {
-        return reviews;
-    }
-
-    public void setReviewList(ReviewList reviews) {
-        this.reviews = reviews;
-    }
-
-    public MovieDetailsResponse withReviewList(ReviewList reviews) {
-        this.reviews = reviews;
-        return this;
-    }
-
-    public Credits getCredits() {
-        return credits;
-    }
-
-    public void setCredits(Credits credits) {
-        this.credits = credits;
-    }
-
-    public MovieDetailsResponse withCredits(Credits credits) {
-        this.credits = credits;
-        return this;
-    }
-
     @NonNull
     @Override
     public String toString() {
@@ -514,9 +469,7 @@ public class MovieDetailsResponse implements Parcelable {
                 .append("video", video)
                 .append("voteAverage", voteAverage)
                 .append("voteCount", voteCount)
-                .append("trailerList", trailerList)
-                .append("reviews", reviews)
-                .append("credits", credits).toString();
+                .toString();
     }
 
     public void writeToParcel(Parcel dest, int flags) {
@@ -545,9 +498,6 @@ public class MovieDetailsResponse implements Parcelable {
         dest.writeValue(video);
         dest.writeValue(voteAverage);
         dest.writeValue(voteCount);
-        dest.writeValue(trailerList);
-        dest.writeValue(reviews);
-        dest.writeValue(credits);
     }
 
     public int describeContents() {

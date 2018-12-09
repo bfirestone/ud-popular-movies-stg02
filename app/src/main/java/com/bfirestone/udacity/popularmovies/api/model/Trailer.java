@@ -32,9 +32,7 @@ public class Trailer implements Parcelable {
     public final static Creator<Trailer> CREATOR = new Creator<Trailer>() {
 
 
-        @SuppressWarnings({
-                "unchecked"
-        })
+        @SuppressWarnings({"unchecked"})
         public Trailer createFromParcel(Parcel in) {
             return new Trailer(in);
         }

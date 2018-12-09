@@ -21,9 +21,12 @@ import com.bfirestone.udacity.popularmovies.adapter.MovieTrailerAdapter;
 import com.bfirestone.udacity.popularmovies.api.MovieApiClient;
 import com.bfirestone.udacity.popularmovies.api.model.Cast;
 import com.bfirestone.udacity.popularmovies.api.model.Genre;
-import com.bfirestone.udacity.popularmovies.api.model.MovieDetailsResponse;
+import com.bfirestone.udacity.popularmovies.api.model.response.CreditsResponse;
+import com.bfirestone.udacity.popularmovies.api.model.response.MovieDetailsResponse;
 import com.bfirestone.udacity.popularmovies.api.model.Review;
 import com.bfirestone.udacity.popularmovies.api.model.Trailer;
+import com.bfirestone.udacity.popularmovies.api.model.response.ReviewsResponse;
+import com.bfirestone.udacity.popularmovies.api.model.response.VideosResponse;
 import com.bfirestone.udacity.popularmovies.database.entity.MovieEntity;
 import com.bfirestone.udacity.popularmovies.glide.GlideApp;
 import com.bfirestone.udacity.popularmovies.service.TheMovieDatabaseApiService;
@@ -118,7 +121,10 @@ public class DetailsActivity extends AppCompatActivity {
 
     private DetailsActivityViewModel detailsActivityViewModel;
     private MovieEntity selectedMovie;
-    private MovieDetailsResponse fullMovieDetails;
+    private MovieDetailsResponse movieDetailsResponse;
+    private VideosResponse videosResponse;
+    private ReviewsResponse reviewsResponse;
+    private CreditsResponse creditsResponse;
     private TheMovieDatabaseApiService movieDatabaseApiService;
     private MovieTrailerAdapter mMovieTrailerAdapter;
     private MovieCastAdapter mMovieCastAdapter;
@@ -136,6 +142,21 @@ public class DetailsActivity extends AppCompatActivity {
         mMovieTrailerAdapter = new MovieTrailerAdapter(this);
         mMovieCastAdapter = new MovieCastAdapter(this);
         mMovieReviewsAdapter = new MovieReviewsAdapter(this);
+
+        // setup cast recycler view
+        rvCast.setLayoutManager(new LinearLayoutManager(this,
+                LinearLayoutManager.HORIZONTAL, false));
+        rvCast.setAdapter(mMovieCastAdapter);
+
+        // setup trailer recycler view
+        rvTrailer.setLayoutManager(new LinearLayoutManager(this,
+                LinearLayoutManager.HORIZONTAL, false));
+        rvTrailer.setAdapter(mMovieTrailerAdapter);
+
+        // setup reviews recycler view
+        rvReviews.setLayoutManager(new LinearLayoutManager(this,
+                LinearLayoutManager.VERTICAL, false));
+        rvReviews.setAdapter(mMovieReviewsAdapter);
 
         // Setup Executor (threading)
         appExecutors = AppExecutors.getExecutorInstance();
@@ -204,7 +225,7 @@ public class DetailsActivity extends AppCompatActivity {
     private void generateGenreNames() {
         StringBuilder genreNames = new StringBuilder();
 
-        Iterator<Genre> genreIterator = fullMovieDetails.getGenres().iterator();
+        Iterator<Genre> genreIterator = movieDetailsResponse.getGenres().iterator();
         while (genreIterator.hasNext()) {
             Genre genre = genreIterator.next();
 
@@ -218,66 +239,122 @@ public class DetailsActivity extends AppCompatActivity {
         movieGenres.setText(genreNames);
     }
 
-    private void generateMovieCast() {
-        List<Cast> cast =  fullMovieDetails.getCredits().getCast();
+    private void generateMovieCredits() {
+        Call<CreditsResponse> call = movieDatabaseApiService.getMovieCredits(
+                selectedMovie.getId(), apiKey);
 
-        rvCast.setLayoutManager(new LinearLayoutManager(this,
-                LinearLayoutManager.HORIZONTAL, false));
-        rvCast.setAdapter(mMovieCastAdapter);
+        Log.v(LOG_TAG, "credits fetch url: " + call.request().url());
+        call.enqueue(new Callback<CreditsResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<CreditsResponse> call,
+                                   @NonNull Response<CreditsResponse> response) {
 
-        if (cast != null && cast.size() > 0) {
-            rvCast.setVisibility(View.VISIBLE);
-            castNotAvailable.setVisibility(View.GONE);
-            mMovieCastAdapter.setCast(cast);
-        } else {
-            rvCast.setVisibility(View.GONE);
-            castNotAvailable.setVisibility(View.VISIBLE);
-        }
+                if (response.isSuccessful() && response.body() != null) {
+                    creditsResponse = response.body();
+
+                    List<Cast> cast =  creditsResponse.getCast();
+
+                    if (cast != null && cast.size() > 0) {
+                        rvCast.setVisibility(View.VISIBLE);
+                        castNotAvailable.setVisibility(View.GONE);
+                        mMovieCastAdapter.setCast(cast);
+                    } else {
+                        rvCast.setVisibility(View.GONE);
+                        castNotAvailable.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<CreditsResponse> call,
+                                  @NonNull Throwable t) {
+
+                Toast.makeText(DetailsActivity.this, "Error Fetching Movie Credits",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void generateMovieReviews() {
-        List<Review> reviews =  fullMovieDetails.getReviewList().getReviews();
+        Call<ReviewsResponse> call = movieDatabaseApiService.getMovieReviews(
+                selectedMovie.getId(), apiKey);
 
-        rvReviews.setLayoutManager(new LinearLayoutManager(this,
-                LinearLayoutManager.VERTICAL, false));
-        rvReviews.setAdapter(mMovieReviewsAdapter);
+        Log.v(LOG_TAG, "reviews fetch url: " + call.request().url());
+        call.enqueue(new Callback<ReviewsResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<ReviewsResponse> call,
+                                   @NonNull Response<ReviewsResponse> response) {
 
-        if (reviews != null && reviews.size() > 0) {
-            rvReviews.setVisibility(View.VISIBLE);
-            reviewsNotAvailable.setVisibility(View.GONE);
-            mMovieReviewsAdapter.setReviews(reviews);
+                if (response.isSuccessful() && response.body() != null) {
+                    reviewsResponse = response.body();
 
-            if (rvReviews.getAdapter() != null) {
-                Log.d(LOG_TAG, "[generateMovieReviews] setting up recycler view & visibility :: "
-                        + rvReviews.getAdapter().getItemCount());
+                    List<Review> reviews =  reviewsResponse.getReviewList();
+
+                    if (reviews != null && reviews.size() > 0) {
+                        rvReviews.setVisibility(View.VISIBLE);
+                        reviewsNotAvailable.setVisibility(View.GONE);
+                        mMovieReviewsAdapter.setReviews(reviews);
+
+                        if (rvReviews.getAdapter() != null) {
+                            Log.d(LOG_TAG, "[generateMovieReviews] setting up recycler view & visibility :: "
+                                    + rvReviews.getAdapter().getItemCount());
+                        }
+                    } else {
+                        rvReviews.setVisibility(View.GONE);
+                        reviewsNotAvailable.setVisibility(View.VISIBLE);
+                    }
+                }
             }
-        } else {
-            rvReviews.setVisibility(View.GONE);
-            reviewsNotAvailable.setVisibility(View.VISIBLE);
-        }
+
+            @Override
+            public void onFailure(@NonNull Call<ReviewsResponse> call,
+                                  @NonNull Throwable t) {
+
+                Toast.makeText(DetailsActivity.this, "Error Fetching Movie Reviews",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void generateMovieTrailers() {
-        List<Trailer> trailers = fullMovieDetails.getTrailerList().getTrailers();
+        Call<VideosResponse> call = movieDatabaseApiService.getMovieTrailers(
+                selectedMovie.getId(), apiKey);
 
-        rvTrailer.setLayoutManager(new LinearLayoutManager(this,
-                LinearLayoutManager.HORIZONTAL, false));
-        rvTrailer.setAdapter(mMovieTrailerAdapter);
+        Log.v(LOG_TAG, "trailer fetch url: " + call.request().url());
+        call.enqueue(new Callback<VideosResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<VideosResponse> call,
+                                   @NonNull Response<VideosResponse> response) {
 
-        if (trailers != null && trailers.size() > 0) {
-            rvTrailer.setVisibility(View.VISIBLE);
-            trailersNotAvailable.setVisibility(View.GONE);
-            mMovieTrailerAdapter.setTrailers(trailers);
-        } else {
-            rvTrailer.setVisibility(View.GONE);
-            trailersNotAvailable.setVisibility(View.VISIBLE);
-        }
+                if (response.isSuccessful() && response.body() != null) {
+                    videosResponse = response.body();
 
+                    List<Trailer> trailers = videosResponse.getTrailerList();
+
+                    if (trailers != null && trailers.size() > 0) {
+                        rvTrailer.setVisibility(View.VISIBLE);
+                        trailersNotAvailable.setVisibility(View.GONE);
+                        mMovieTrailerAdapter.setTrailers(trailers);
+                    } else {
+                        rvTrailer.setVisibility(View.GONE);
+                        trailersNotAvailable.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<VideosResponse> call,
+                                  @NonNull Throwable t) {
+
+                Toast.makeText(DetailsActivity.this, "Error Fetching Movie Trailers",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void fetchFullMovieDetails() {
         Call<MovieDetailsResponse> call = movieDatabaseApiService.getMovieDetails(
-                selectedMovie.getId(), apiKey, "videos,reviews,credits");
+                selectedMovie.getId(), apiKey);
 
         Log.v(LOG_TAG, "full movie fetch url: " + call.request().url());
         call.enqueue(new Callback<MovieDetailsResponse>() {
@@ -286,15 +363,11 @@ public class DetailsActivity extends AppCompatActivity {
                                    @NonNull Response<MovieDetailsResponse> response) {
 
                 if (response.isSuccessful() && response.body() != null) {
-                    fullMovieDetails = response.body();
-                    Log.v(LOG_TAG, "total_review="
-                            + fullMovieDetails.getReviewList().getReviews().size()
-                            + " total_trailers=" + fullMovieDetails.getTrailerList().getTrailers().size()
-                            + " total_cast=" + fullMovieDetails.getCredits().getCast().size());
+                    movieDetailsResponse = response.body();
 
                     generateGenreNames();
                     generateMovieTrailers();
-                    generateMovieCast();
+                    generateMovieCredits();
                     generateMovieReviews();
 
                 }
