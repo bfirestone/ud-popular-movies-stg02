@@ -1,4 +1,4 @@
-package com.bfirestone.udacity.popularmovies.adapters;
+package com.bfirestone.udacity.popularmovies.adapter;
 
 import android.content.Context;
 import android.net.Uri;
@@ -12,7 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bfirestone.udacity.popularmovies.R;
-import com.bfirestone.udacity.popularmovies.api.models.Cast;
+import com.bfirestone.udacity.popularmovies.api.model.Cast;
 import com.bfirestone.udacity.popularmovies.glide.GlideApp;
 
 import java.util.List;

@@ -1,5 +1,5 @@
 
-package com.bfirestone.udacity.popularmovies.api.models;
+package com.bfirestone.udacity.popularmovies.api.model;
 
 import java.util.List;
 

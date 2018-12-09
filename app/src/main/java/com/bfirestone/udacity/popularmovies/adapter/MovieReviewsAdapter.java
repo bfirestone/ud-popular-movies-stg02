@@ -1,4 +1,4 @@
-package com.bfirestone.udacity.popularmovies.adapters;
+package com.bfirestone.udacity.popularmovies.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -11,7 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bfirestone.udacity.popularmovies.R;
-import com.bfirestone.udacity.popularmovies.api.models.Review;
+import com.bfirestone.udacity.popularmovies.api.model.Review;
 
 import java.util.List;
 
