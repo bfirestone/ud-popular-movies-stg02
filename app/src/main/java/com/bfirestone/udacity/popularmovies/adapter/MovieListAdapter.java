@@ -116,7 +116,6 @@ public class MovieListAdapter extends ListAdapter<MovieEntity, MovieListAdapter.
             GlideApp.with(context)
                     .load(moviePosterUrl)
                     .apply(new RequestOptions()
-                            .fitCenter()
                             .format(DecodeFormat.PREFER_ARGB_8888)
                             .override(Target.SIZE_ORIGINAL))
                     .placeholder(R.drawable.gradient_background)

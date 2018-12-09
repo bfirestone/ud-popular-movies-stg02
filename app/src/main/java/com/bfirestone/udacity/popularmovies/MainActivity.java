@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,6 +29,7 @@ import com.bfirestone.udacity.popularmovies.view.MainActivityViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindBool;
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -75,7 +77,10 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
     @BindString(R.string.TMDB_BASE_API_URL)
     String TMDB_BASE_API_URL;
 
-    private MovieSortType movieSortType;
+    @BindBool(R.bool.is_landscape)
+    boolean isOrientationLandscape;
+
+    private MovieSortType movieSortType = MovieSortType.MOST_POPULAR;
     private TheMovieDatabaseApiService movieDatabaseApiService;
     private MovieListAdapter mMovieListAdapter;
     private String faveSortBy;
@@ -88,15 +93,19 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
         ButterKnife.bind(this);
         setupSharedPreferences();
 
-        // default menu sort type
-        movieSortType = MovieSortType.MOST_POPULAR;
+        // setup Gridlayout SpanCount
+        int spanCount = 2;
 
         // Initialize the adapter and attach it to the RecyclerView
         mMovieListAdapter = new MovieListAdapter(this, this);
 
+        if (isOrientationLandscape) {
+            spanCount = 3;
+        }
+
         // Setup recycler view
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        mRecyclerView.setLayoutManager(new GridLayoutManager(this, spanCount));
         mRecyclerView.setAdapter(mMovieListAdapter);
 
         mSwipeContainer.setOnRefreshListener(this::getMovieListBySort);
@@ -116,28 +125,15 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
                         .build())
                 .create(TheMovieDatabaseApiService.class);
 
-        if (savedInstanceState != null) {
-            Log.v(LOG_TAG, "loading from saved instance");
-            ArrayList<MovieEntity> movieList;
-
-            if (savedInstanceState.containsKey(STATE_MOVIE_ENTITY)) {
-                setTitle(savedInstanceState.getString(STATE_ACTIVITY_TITLE));
-                movieList = savedInstanceState.getParcelableArrayList(STATE_MOVIE_ENTITY);
-                mMovieListAdapter.clear();
-                mMovieListAdapter.setMovieList(movieList);
-            }
-
-            if (savedInstanceState.containsKey(STATE_ACTIVITY_TITLE)) {
-                activityTitle = savedInstanceState.getString(STATE_ACTIVITY_TITLE);
-                setTitle(activityTitle);
-            }
+        if (savedInstanceState == null) {
+            getMovieListBySort();
         }
-
-        // if no saved state exists
-        getMovieListBySort();
     }
 
     private void getMovieListBySort() {
+        // update title
+        updateTitle();
+
         Log.v(LOG_TAG, "method=getMovieListBySort() sort_type=" + MovieSortType.get(movieSortType.getValue()));
         NetworkConnectionDetector detector = new NetworkConnectionDetector();
 
@@ -145,7 +141,6 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
 
         viewModel.getFavedMovies(faveSortBy).observe(this, favorites -> {
             if (favorites != null && movieSortType == MovieSortType.FAVORITES) {
-                setTitle(R.string.menu_display_faves);
                 mMovieListAdapter.clear();
                 mMovieListAdapter.setMovieList(favorites);
 
@@ -162,14 +157,10 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
 
             if (movieSortType != MovieSortType.FAVORITES) {
                 if (movieSortType == MovieSortType.HIGHEST_RATING) {
-                    activityTitle = getString(R.string.menu_highest_rating);
                     call = movieDatabaseApiService.getTopRatedMovies(TMDB_API_KEY, 1);
                 } else {
-                    activityTitle = getString(R.string.menu_most_popular);
                     call = movieDatabaseApiService.getPopularMovies(TMDB_API_KEY, 1);
                 }
-
-                setTitle(activityTitle);
 
                 Log.v(LOG_TAG, "movie db api: " + call.request().url());
 
@@ -203,6 +194,22 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
         }
 
         mSwipeContainer.setRefreshing(false);
+    }
+
+    public void updateTitle() {
+        switch (movieSortType) {
+            case HIGHEST_RATING:
+                activityTitle = getString(R.string.menu_highest_rating);
+                break;
+            case MOST_POPULAR:
+                activityTitle = getString(R.string.menu_most_popular);
+                break;
+            case FAVORITES:
+                activityTitle = getString(R.string.menu_display_faves);
+                break;
+        }
+
+        setTitle(activityTitle);
     }
 
     @Override
@@ -258,21 +265,28 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        movieSortType = MovieSortType.get(savedInstanceState.getInt(STATE_SORT_TYPE));
-        mMovieListAdapter.setMovieList(savedInstanceState.getParcelableArrayList(STATE_MOVIE_ENTITY));
         super.onRestoreInstanceState(savedInstanceState);
+        movieSortType = MovieSortType.get(savedInstanceState.getInt(STATE_SORT_TYPE));
+        mMovieListAdapter.clear();
+        mMovieListAdapter.setMovieList(savedInstanceState.getParcelableArrayList(STATE_MOVIE_ENTITY));
+
+        if (mRecyclerView.getLayoutManager() != null) {
+            mRecyclerView.getLayoutManager()
+                    .onRestoreInstanceState(savedInstanceState.getParcelable(STATE_LAYOUT_MANAGER));
+        }
+        // update title
+        updateTitle();
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         outState.putInt(STATE_SORT_TYPE, movieSortType.getValue());
-        outState.putString(STATE_ACTIVITY_TITLE, activityTitle);
         outState.putParcelableArrayList(STATE_MOVIE_ENTITY, mMovieListAdapter.getMovieEntityList());
         if (mRecyclerView.getLayoutManager() != null) {
             outState.putParcelable(STATE_LAYOUT_MANAGER, mRecyclerView.
                     getLayoutManager().onSaveInstanceState());
         }
-        super.onSaveInstanceState(outState);
     }
 
     private void setupSharedPreferences() {
