@@ -1,5 +1,5 @@
 
-package com.bfirestone.udacity.popularmovies.api.models;
+package com.bfirestone.udacity.popularmovies.api.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;

@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
@@ -18,12 +17,11 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.bfirestone.udacity.popularmovies.Utils.NetworkConnectionDetector;
-import com.bfirestone.udacity.popularmovies.adapters.ItemClickListener;
-import com.bfirestone.udacity.popularmovies.adapters.MovieListAdapter;
+import com.bfirestone.udacity.popularmovies.listener.ItemClickListener;
+import com.bfirestone.udacity.popularmovies.adapter.MovieListAdapter;
 import com.bfirestone.udacity.popularmovies.api.MovieApiClient;
-import com.bfirestone.udacity.popularmovies.api.models.MovieListResponse;
+import com.bfirestone.udacity.popularmovies.api.model.MovieListResponse;
 import com.bfirestone.udacity.popularmovies.database.entity.MovieEntity;
-import com.bfirestone.udacity.popularmovies.menu.SortingDialogFragment;
 import com.bfirestone.udacity.popularmovies.service.TheMovieDatabaseApiService;
 import com.bfirestone.udacity.popularmovies.view.MainActivityViewModel;
 
@@ -33,6 +31,8 @@ import java.util.List;
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import okhttp3.Cache;
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -105,9 +105,15 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
 
+        // setup retrofit cache
+        int cacheSize = 40 * 1024 * 1024; // 40 MB
+        Cache cache = new Cache(getCacheDir(), cacheSize);
 
+        // setup retrofit client
         movieDatabaseApiService = new MovieApiClient()
-                .getRetrofitClient(TMDB_BASE_API_URL)
+                .getRetrofitClient(TMDB_BASE_API_URL, new OkHttpClient.Builder()
+                        .cache(cache)
+                        .build())
                 .create(TheMovieDatabaseApiService.class);
 
         if (savedInstanceState != null) {
@@ -217,10 +223,10 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
         }
 
         switch(id) {
-            case R.id.sort_highest_rating:
+            case R.id.sort_by_rating:
                 movieSortType = MovieSortType.HIGHEST_RATING;
                 break;
-            case R.id.sort_most_popular:
+            case R.id.sort_by_popularity:
                 movieSortType = MovieSortType.MOST_POPULAR;
                 break;
             case R.id.sort_display_faves:
@@ -244,14 +250,6 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        Log.v(LOG_TAG, String.format(
-                "method=onResume() sort_type=%s title=%s movie_count=%s movie_titles=%s",
-                movieSortType, faveSortBy, mMovieListAdapter.getItemCount(), mMovieListAdapter.getMovieNameList()));
-    }
-
-    @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(PREF_FAVE_KEY)) {
             faveSortBy = sharedPreferences.getString(key, PREF_FAVE_DEFAULT_SORT);
@@ -260,7 +258,6 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        Log.v(LOG_TAG, "method=onRestoreInstanceState()");
         movieSortType = MovieSortType.get(savedInstanceState.getInt(STATE_SORT_TYPE));
         mMovieListAdapter.setMovieList(savedInstanceState.getParcelableArrayList(STATE_MOVIE_ENTITY));
         super.onRestoreInstanceState(savedInstanceState);
@@ -268,7 +265,6 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        Log.v(LOG_TAG, "method=onSaveInstanceState()");
         outState.putInt(STATE_SORT_TYPE, movieSortType.getValue());
         outState.putString(STATE_ACTIVITY_TITLE, activityTitle);
         outState.putParcelableArrayList(STATE_MOVIE_ENTITY, mMovieListAdapter.getMovieEntityList());
@@ -295,6 +291,7 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
 
     }
 
+    // TODO: add dialog fragment for sort options/menu
 //    private void showSortByMenu() {
 //        DialogFragment sortingDialogFragment = new SortingDialogFragment();
 //        sortingDialogFragment.show(getFragmentManager(), SortingDialogFragment.TAG);

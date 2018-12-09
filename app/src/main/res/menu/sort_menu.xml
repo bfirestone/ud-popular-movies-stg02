@@ -31,14 +31,14 @@
 
     <group android:id="@+id/menu_display_sort">
         <item
-            android:id="@+id/sort_highest_rating"
+            android:id="@+id/sort_by_rating"
             android:title="@string/menu_highest_rating"
             android:orderInCategory="1"
             android:visible="true"
             app:showAsAction="never" />
 
         <item
-            android:id="@+id/sort_most_popular"
+            android:id="@+id/sort_by_popularity"
             android:title="@string/menu_most_popular"
             android:visible="true"
             android:orderInCategory="2"

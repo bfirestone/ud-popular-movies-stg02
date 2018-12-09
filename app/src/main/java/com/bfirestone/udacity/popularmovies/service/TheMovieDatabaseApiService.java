@@ -1,8 +1,8 @@
 package com.bfirestone.udacity.popularmovies.service;
 
-import com.bfirestone.udacity.popularmovies.api.models.MovieDetailsResponse;
-import com.bfirestone.udacity.popularmovies.api.models.GenreListResponse;
-import com.bfirestone.udacity.popularmovies.api.models.MovieListResponse;
+import com.bfirestone.udacity.popularmovies.api.model.MovieDetailsResponse;
+import com.bfirestone.udacity.popularmovies.api.model.GenreListResponse;
+import com.bfirestone.udacity.popularmovies.api.model.MovieListResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

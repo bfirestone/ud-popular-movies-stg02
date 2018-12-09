@@ -1,5 +1,5 @@
 
-package com.bfirestone.udacity.popularmovies.api.models;
+package com.bfirestone.udacity.popularmovies.api.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -39,7 +39,7 @@ public class Credits implements Parcelable
 
     private Credits(Parcel in) {
         in.readList(this.cast, (Cast.class.getClassLoader()));
-        in.readList(this.crew, (com.bfirestone.udacity.popularmovies.api.models.Crew.class.getClassLoader()));
+        in.readList(this.crew, (com.bfirestone.udacity.popularmovies.api.model.Crew.class.getClassLoader()));
     }
 
     public Credits() {
