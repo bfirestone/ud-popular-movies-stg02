@@ -9,6 +9,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
@@ -21,13 +22,14 @@ import com.bfirestone.udacity.popularmovies.adapter.MovieListAdapter;
 import com.bfirestone.udacity.popularmovies.api.MovieApiClient;
 import com.bfirestone.udacity.popularmovies.api.model.MovieListResponse;
 import com.bfirestone.udacity.popularmovies.database.entity.MovieEntity;
+import com.bfirestone.udacity.popularmovies.listener.EndlessRecyclerViewScrollListener;
 import com.bfirestone.udacity.popularmovies.listener.ItemClickListener;
 import com.bfirestone.udacity.popularmovies.service.TheMovieDatabaseApiService;
 import com.bfirestone.udacity.popularmovies.view.MainActivityViewModel;
 
 import java.util.List;
 
-import butterknife.BindBool;
+import butterknife.BindInt;
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -37,6 +39,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.bfirestone.udacity.popularmovies.Utils.DisplayUtils.calculateColumns;
+
 
 public class MainActivity extends AppCompatActivity implements ItemClickListener,
         SharedPreferences.OnSharedPreferenceChangeListener, SwipeRefreshLayout.OnRefreshListener {
@@ -44,6 +48,9 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
 
     @BindView(R.id.rv_main)
     RecyclerView mRecyclerView;
+
+    @BindInt(R.integer.dimen_main_poster_width)
+    int mDimensionPosterWidth;
 
     @BindView(R.id.swipe_container_main)
     SwipeRefreshLayout mSwipeContainer;
@@ -59,6 +66,9 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
 
     @BindString(R.string.pref_fave_key)
     String PREF_FAVE_KEY;
+
+    @BindString(R.string.state_movie_list_pos)
+    String STATE_MOVIE_LIST_POS;
 
     @BindString(R.string.state_movie_entity_list)
     String STATE_MOVIE_ENTITY;
@@ -81,14 +91,16 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
     @BindString(R.string.moviedb_api_sort_rating)
     String TMDB_API_SORT_RATING;
 
-    @BindBool(R.bool.is_landscape)
-    boolean isOrientationLandscape;
-
-    private MovieSortType movieSortType = MovieSortType.MOST_POPULAR;
+    private MainActivityViewModel viewModel;
+    private MovieSortType movieSortType;
     private TheMovieDatabaseApiService movieDatabaseApiService;
     private MovieListAdapter mMovieListAdapter;
+    private GridLayoutManager mGridLayoutManager;
+    private List<MovieEntity> movieEntityList;
     private String faveSortBy;
     private String activityTitle;
+    private RecyclerView.SmoothScroller smoothScroller;
+    private static int totalPages = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,22 +109,58 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
         ButterKnife.bind(this);
         setupSharedPreferences();
 
-        // setup Gridlayout SpanCount
-        int spanCount = 2;
+        smoothScroller = new LinearSmoothScroller(this) {
+            @Override protected int getVerticalSnapPreference() {
+                return LinearSmoothScroller.SNAP_TO_START;
+            }
+        };
 
-        // Initialize the adapter and attach it to the RecyclerView
+        // Initialize the recycler adapter
         mMovieListAdapter = new MovieListAdapter(this, this);
 
-        if (isOrientationLandscape) {
-            spanCount = 3;
-        }
-
         // Setup recycler view
+        mGridLayoutManager = new GridLayoutManager(this, calculateColumns(this,
+                mDimensionPosterWidth));
+
+        mGridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                return 1;
+            }
+        });
+
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(new GridLayoutManager(this, spanCount));
+        mRecyclerView.setLayoutManager(mGridLayoutManager);
         mRecyclerView.setAdapter(mMovieListAdapter);
 
-        mSwipeContainer.setOnRefreshListener(this::getMovieListBySort);
+        if (savedInstanceState != null) {
+            mRecyclerView.post(() -> {
+                int pos = savedInstanceState.getInt(STATE_MOVIE_LIST_POS);
+
+                if (pos == -1) {
+                    pos = 0;
+                }
+
+                Log.v(LOG_TAG, "SETTING_POS: " + pos);
+                smoothScroller.setTargetPosition(pos);
+                mGridLayoutManager.startSmoothScroll(smoothScroller);
+            });
+        }
+
+        EndlessRecyclerViewScrollListener scrollListener = new EndlessRecyclerViewScrollListener(mGridLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                if ((page + 1) <= totalPages && movieSortType != MovieSortType.FAVORITES) {
+                    getMovieListBySort(page + 1);
+                }
+            }
+        };
+
+        mRecyclerView.addOnScrollListener(scrollListener);
+
+        viewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
+
+        mSwipeContainer.setOnRefreshListener(() -> getMovieListBySort(1));
         mSwipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
@@ -130,45 +178,51 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
                 .create(TheMovieDatabaseApiService.class);
 
         if (savedInstanceState == null) {
-            getMovieListBySort();
+            movieSortType  = MovieSortType.MOST_POPULAR;
+            getMovieListBySort(1);
         }
     }
 
-    private void getMovieListBySort() {
+    private void getMovieListBySort(final int requestPage) {
+        Log.v(LOG_TAG, "method=getMovieListBySort() sort_type=" + MovieSortType.getSortType(movieSortType.getSortValue()));
         // update title
         updateTitle();
 
-        Log.v(LOG_TAG, "method=getMovieListBySort() sort_type=" + MovieSortType.get(movieSortType.getValue()));
-        NetworkConnectionDetector detector = new NetworkConnectionDetector();
+        if (movieSortType == MovieSortType.FAVORITES) {
+            viewModel.getFavedMovies(faveSortBy).observe(this, favorites -> {
+                if (favorites != null) {
+                    totalPages = favorites.size();
+                    movieEntityList = favorites;
+                    mMovieListAdapter.setMovieList(favorites);
 
-        MainActivityViewModel viewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
-
-        viewModel.getFavedMovies(faveSortBy).observe(this, favorites -> {
-            if (favorites != null && movieSortType == MovieSortType.FAVORITES) {
-                mMovieListAdapter.clear();
-                mMovieListAdapter.setMovieList(favorites);
-
-                if (mMovieListAdapter.getMovieEntityList().size() == 0) {
-                    Toast.makeText(getApplicationContext(), R.string.FavesNotFound,
-                            Toast.LENGTH_SHORT).show();
+                    if (mMovieListAdapter.getMovieEntityList().size() == 0) {
+                        Toast.makeText(getApplicationContext(), R.string.no_faves_found,
+                                Toast.LENGTH_SHORT).show();
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            NetworkConnectionDetector detector = new NetworkConnectionDetector();
 
-        if (detector.isNetworkAvailable(this)) {
-            String apiSortString;
+            if (detector.isNetworkAvailable(this)) {
+                String apiSortString;
 
-            if (movieSortType != MovieSortType.FAVORITES) {
-                if (movieSortType == MovieSortType.HIGHEST_RATING) {
-                    apiSortString = TMDB_API_SORT_RATING;
-                } else {
-                    apiSortString = TMDB_API_SORT_POPULARITY;
+                switch (movieSortType) {
+                    case MOST_POPULAR:
+                        apiSortString = TMDB_API_SORT_POPULARITY;
+                        break;
+                    case HIGHEST_RATING:
+                        apiSortString = TMDB_API_SORT_RATING;
+                        break;
+                    default:
+                        apiSortString = TMDB_API_SORT_RATING;
+                        break;
                 }
 
                 Call<MovieListResponse> call = movieDatabaseApiService.getMoviesBySortOrder(
-                        apiSortString, TMDB_API_KEY, 1);
+                        apiSortString, TMDB_API_KEY, requestPage);
 
-                Log.v(LOG_TAG, "movie db api: " + call.request().url());
+                Log.v(LOG_TAG, String.format("tmdb api_url=[%s]", call.request().url()));
 
                 call.enqueue(new Callback<MovieListResponse>() {
                     @Override
@@ -176,11 +230,19 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
                                            @NonNull Response<MovieListResponse> response) {
 
                         if (response.isSuccessful() && response.body() != null) {
-                            List<MovieEntity> movieDetails = response.body().getResults();
-                            Log.v(LOG_TAG, "[movie_details] " + movieDetails);
-                            mMovieListAdapter.clear();
-                            mMovieListAdapter.setMovieList(movieDetails);
-                            Log.v(LOG_TAG, "[top_rated_movies] num fetched=" + movieDetails.size());
+                            totalPages = response.body().getTotalPages();
+
+                            if (requestPage == 1) {
+                                movieEntityList = response.body().getResults();
+                                mMovieListAdapter.setMovieList(movieEntityList);
+                                Log.v(LOG_TAG, "[top_rated_movies] num fetched=" + movieEntityList.size());
+                            } else {
+                                List<MovieEntity> movieEntities = response.body().getResults();
+                                movieEntities.forEach(movieEntity -> {
+                                    movieEntityList.add(movieEntity);
+                                    mMovieListAdapter.addMovie(movieEntity);
+                                });
+                            }
                         }
                     }
 
@@ -193,10 +255,11 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
-            }
 
-        } else {
-            Log.e(LOG_TAG, "[network] not available");
+
+            } else {
+                Log.e(LOG_TAG, "[network] not available");
+            }
         }
 
         mSwipeContainer.setRefreshing(false);
@@ -235,7 +298,7 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
             return true;
         }
 
-        switch(id) {
+        switch (id) {
             case R.id.sort_by_rating:
                 movieSortType = MovieSortType.HIGHEST_RATING;
                 break;
@@ -247,7 +310,8 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
                 break;
         }
 
-        getMovieListBySort();
+        totalPages = 0;
+        getMovieListBySort(1);
 
         return super.onOptionsItemSelected(item);
     }
@@ -272,27 +336,48 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        movieSortType = MovieSortType.get(savedInstanceState.getInt(STATE_SORT_TYPE));
-        mMovieListAdapter.clear();
-        mMovieListAdapter.setMovieList(savedInstanceState.getParcelableArrayList(STATE_MOVIE_ENTITY));
-
-        if (mRecyclerView.getLayoutManager() != null) {
-            mRecyclerView.getLayoutManager()
-                    .onRestoreInstanceState(savedInstanceState.getParcelable(STATE_LAYOUT_MANAGER));
-        }
-        // update title
+        Log.v(LOG_TAG, "instance state=restored");
+        movieSortType = MovieSortType.getSortType(savedInstanceState.getInt(STATE_SORT_TYPE));
+        movieEntityList = savedInstanceState.getParcelableArrayList(STATE_MOVIE_ENTITY);
+        mMovieListAdapter.setMovieList(movieEntityList);
         updateTitle();
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt(STATE_SORT_TYPE, movieSortType.getValue());
+        Log.v(LOG_TAG, "instance state=saved");
+        outState.putInt(STATE_MOVIE_LIST_POS, mGridLayoutManager.findFirstCompletelyVisibleItemPosition());
+        outState.putInt(STATE_SORT_TYPE, movieSortType.getSortValue());
         outState.putParcelableArrayList(STATE_MOVIE_ENTITY, mMovieListAdapter.getMovieEntityList());
-        if (mRecyclerView.getLayoutManager() != null) {
-            outState.putParcelable(STATE_LAYOUT_MANAGER, mRecyclerView.
-                    getLayoutManager().onSaveInstanceState());
-        }
+        super.onSaveInstanceState(outState);
+    }
+
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//
+//        if (mRecyclerView.getLayoutManager() != null) {
+//            smoothScroller.setTargetPosition(currentVisiblePosition);
+//            currentVisiblePosition = 0;
+//        }
+//
+//    }
+//
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//
+//        if (mRecyclerView.getLayoutManager() != null) {
+//            currentVisiblePosition = ((GridLayoutManager) mRecyclerView.getLayoutManager())
+//                    .findFirstCompletelyVisibleItemPosition();
+//        }
+//
+//        Log.v(LOG_TAG, String.format("instance state=pause position=%d", currentVisiblePosition));
+//    }
+
+    @Override
+    public void onRefresh() {
+
     }
 
     private void setupSharedPreferences() {
@@ -304,11 +389,6 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
 
     private void loadFaveSortFromPreferences(SharedPreferences sharedPreferences) {
         faveSortBy = sharedPreferences.getString(PREF_FAVE_KEY, PREF_FAVE_DEFAULT_SORT);
-    }
-
-    @Override
-    public void onRefresh() {
-
     }
 
     // TODO: add dialog fragment for sort options/menu

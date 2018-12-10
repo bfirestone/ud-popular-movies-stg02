@@ -1,6 +1,8 @@
 package com.bfirestone.udacity.popularmovies.Utils;
 
+import android.content.Context;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import java.text.ParseException;
@@ -13,6 +15,12 @@ public class DisplayUtils {
     private static final String LOG_TAG = DisplayUtils.class.getSimpleName();
 
     private DisplayUtils() {}
+
+    public static int calculateColumns(Context context, int gridWidth) {
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        double dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+        return (int) (dpWidth / gridWidth);
+    }
 
     public static String getDisplayReleaseDate(String releaseDate) {
         if (TextUtils.isEmpty(releaseDate)) return "";

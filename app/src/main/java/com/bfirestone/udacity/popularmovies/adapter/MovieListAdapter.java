@@ -2,8 +2,6 @@ package com.bfirestone.udacity.popularmovies.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.v7.recyclerview.extensions.ListAdapter;
-import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,29 +21,15 @@ import com.bumptech.glide.request.target.Target;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MovieListAdapter extends ListAdapter<MovieEntity, MovieListAdapter.MovieViewHolder> {
+@SuppressWarnings("unused")
+public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.MovieViewHolder> {
     private static final String LOG_TAG = MovieListAdapter.class.getSimpleName();
 
     private ArrayList<MovieEntity> movieEntityList = new ArrayList<>();
     private Context context;
     final private ItemClickListener mItemClickListener;
 
-    private static final DiffUtil.ItemCallback<MovieEntity> DIFF_CALLBACK =
-            new DiffUtil.ItemCallback<MovieEntity>() {
-                @Override
-                public boolean areItemsTheSame(MovieEntity oldItem, MovieEntity newItem) {
-                    return oldItem.getId() == newItem.getId();
-                }
-
-                @Override
-                public boolean areContentsTheSame(@NonNull MovieEntity oldItem,
-                                                  @NonNull MovieEntity newItem) {
-                    return oldItem.equals(newItem);
-                }
-            };
-
     public MovieListAdapter(Context context, ItemClickListener listener) {
-        super(DIFF_CALLBACK);
         this.context = context;
         this.mItemClickListener = listener;
     }
@@ -56,7 +40,6 @@ public class MovieListAdapter extends ListAdapter<MovieEntity, MovieListAdapter.
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.layout_movie_list, parent, false);
-        Log.d(LOG_TAG, String.format("method=onCreateViewHolder viewType=%d", viewType));
         return new MovieViewHolder(view);
     }
 
@@ -64,7 +47,16 @@ public class MovieListAdapter extends ListAdapter<MovieEntity, MovieListAdapter.
     public void onBindViewHolder(@NonNull final MovieViewHolder holder, final int position) {
         Log.v(LOG_TAG, String.format("method=onBindViewHolder() size=%d position=%s",
                 movieEntityList.size(), position));
-        holder.bindMovie(getItem(position));
+        holder.bindMovie(movieEntityList.get(position));
+    }
+
+    @Override
+    public int getItemCount() {
+        if (movieEntityList != null) {
+            return  movieEntityList.size();
+        }
+
+        return 0;
     }
 
     public ArrayList<MovieEntity> getMovieEntityList() {
@@ -83,17 +75,27 @@ public class MovieListAdapter extends ListAdapter<MovieEntity, MovieListAdapter.
         return movieTitles;
     }
 
-    public void clear() {
-        if (movieEntityList != null) {
-            movieEntityList.clear();
-            notifyDataSetChanged();
-        }
+    public void addMovieList(List<MovieEntity> movieEntityList) {
+        this.movieEntityList.addAll(movieEntityList);
+        notifyDataSetChanged();
+    }
+
+    public void addMovie(MovieEntity movieEntity) {
+        movieEntityList.add(movieEntity);
+        notifyDataSetChanged();
     }
 
     public void setMovieList(List<MovieEntity> movieEntityList) {
-        Log.v(LOG_TAG, String.format("method=setMovieList() list_size=%d", movieEntityList.size()));
-        this.movieEntityList.addAll(movieEntityList);
-        submitList(movieEntityList);
+        Log.v(LOG_TAG, String.format("method=setMovieList() list_size=%d",
+                movieEntityList.size()));
+
+//        StackTraceElement[] stackTrace = new Throwable().getStackTrace();
+//        for (StackTraceElement stackTraceElement : stackTrace) {
+//            Log.v(LOG_TAG, String.format("[stack] %s", stackTraceElement));
+//        }
+
+        this.movieEntityList = new ArrayList<>(movieEntityList);
+        notifyDataSetChanged();
     }
 
     class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
